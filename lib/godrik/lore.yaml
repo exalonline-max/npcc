@@ -1,0 +1,19 @@
+entries:
+  - id: godrik-origin
+    tags: [godrik, stars, destiny]
+    text: "Forged among star-fires, made for war yet seeking peace; destiny is shaped at the anvil of choice."
+  - id: forge-pantheon
+    tags: [forge, forge_gods, purpose]
+    text: "Forge gods teach creation through trial; flaws refined, not erased. Worship is labor well-done."
+  - id: shield-oath
+    tags: [shield, comfort, purpose]
+    text: "A shield is a promise to stand in harm’s path; the oath binds the arm and the heart."
+  - id: stars-ledger
+    tags: [stars, investigation]
+    text: "The sky is a ledger of fires past; constellations are meanings mortals agree to read."
+  - id: giant-mother
+    tags: [destiny, comfort]
+    text: "A mortal mother’s mercy tempered Godrik’s war-born purpose; he honors the weak as iron honors carbon—by becoming steel."
+  - id: bodho
+    tags: [bodho, destiny, forge]
+    text: "Bodho’s ox-blood bounty tempts artisans to trade patience for power; haste yields brittle edges."

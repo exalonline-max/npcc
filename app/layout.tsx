@@ -13,11 +13,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <ClerkProvider publishableKey={publishableKey}>
-          <header style={{display: 'flex', justifyContent: 'space-between', padding: 12}}>
-            <div>NPCC</div>
-            <AuthNav />
+          <header style={{borderBottom: '1px solid var(--border)'}}>
+            <div className="container" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 8}}>
+              <div style={{fontWeight: 700}}>NPCC</div>
+              <AuthNav />
+            </div>
           </header>
-          {children}
+          <div className="container">{children}</div>
         </ClerkProvider>
       </body>
     </html>

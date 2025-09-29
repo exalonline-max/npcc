@@ -66,5 +66,28 @@ Note: Render defaults to `pnpm` when detecting a lockfile. This project uses `pa
 	- Add a `predeploy` script in Render that runs `npx prisma migrate deploy` (recommended for managed DB).
 	- Or run `npx prisma migrate deploy` manually in the Render shell once.
 
+### Switching to npcchatter Postgres (recommended)
+
+If you want this app to store characters in the hosted `npcchatter-db` Postgres instance:
+
+1. Add the production Postgres URL to your `.env` locally (or to Render env vars) as `DATABASE_URL`.
+
+2. Run the migrations locally to create the schema on the Postgres DB (useful for dev and to generate migration files):
+
+```bash
+# with DATABASE_URL set to your npcchatter Postgres
+npx prisma generate
+npx prisma migrate dev --name init
+```
+
+3. Commit the generated `prisma/migrations` directory and push to GitHub. On Render, ensure you run:
+
+```bash
+npx prisma migrate deploy
+npm ci && npm run build
+```
+
+This will apply migrations on the managed Postgres during deploy.
+
 6. Visit your Render service URL. Tail logs from the Render dashboard to troubleshoot runtime errors. You can also run the same `curl` checks or open the browser console.
 # npcc

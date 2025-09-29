@@ -13,7 +13,11 @@ export default function AuthNav() {
   }, [])
 
   return (
-    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      <Link href="/" className="btn-ghost" style={{ fontWeight: 600 }}>
+        Home
+      </Link>
+
       <SignedIn>
         <UserButton afterSignOutUrl="/" />
       </SignedIn>
@@ -21,10 +25,10 @@ export default function AuthNav() {
       <SignedOut>
         {hasClerkClient ? (
           <SignInButton mode="modal">
-            <button type="button" className="btn">Sign in</button>
+            <button type="button" className="btn btn-primary">Sign in</button>
           </SignInButton>
         ) : (
-          <Link href="/signin" className="btn">Sign in</Link>
+          <Link href="/signin" className="btn btn-primary">Sign in</Link>
         )}
       </SignedOut>
     </div>

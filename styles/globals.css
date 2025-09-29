@@ -18,6 +18,8 @@ input,button{font:inherit}
 	box-shadow:var(--card-shadow);
 }
 
+.container{max-width:980px;margin:0 auto;padding:20px}
+
 .center-screen{
 	min-height:60vh;
 	display:flex;
