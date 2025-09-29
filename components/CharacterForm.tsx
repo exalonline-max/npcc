@@ -5,7 +5,7 @@ import { useState } from 'react'
 export default function CharacterForm() {
   const [name, setName] = useState('')
   const [klass, setKlass] = useState('')
-  const [level, setLevel] = useState(1)
+  const [level, setLevel] = useState<number>(1)
   const [status, setStatus] = useState('')
 
   async function save(e: React.FormEvent) {
