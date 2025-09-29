@@ -8,11 +8,13 @@ input,button{font:inherit}
 	--border:#e5e7eb;
 	--accent:#111827;
 	--card-shadow: 0 6px 18px rgba(16,24,40,0.06);
+	--parchment:#fbf7ef;
+	--parchment-border:#e1d7c6;
 }
 
 .card{
-	background:var(--bg);
-	border:1px solid var(--border);
+	background:var(--parchment);
+	border:1px solid var(--parchment-border);
 	border-radius:8px;
 	padding:16px;
 	box-shadow:var(--card-shadow);
@@ -27,7 +29,7 @@ input,button{font:inherit}
 	justify-content:center;
 }
 
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--accent);cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:6px;border:1px solid var(--parchment-border);background:transparent;color:var(--accent);cursor:pointer}
 .btn:active{transform:translateY(1px)}
 .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn-outline{background:transparent}

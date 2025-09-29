@@ -9,6 +9,31 @@ export default function ToolsPage() {
           title="Godrik AI — Philosopher-Smith"
           description="Generate lore-aware, in-character lines for a 20 INT artificer."
           href="/tools/godrik"
+          emoji="⚒️"
+        />
+        <ToolCard
+          title="Quests"
+          description="Track and generate session quests and hooks."
+          href="/tools/quests"
+          emoji="🗺️"
+        />
+        <ToolCard
+          title="Achievements"
+          description="Manage PC achievements and milestones."
+          href="/tools/achievements"
+          emoji="🏆"
+        />
+        <ToolCard
+          title="World Map"
+          description="Visualize regions, pins, and lore locations."
+          href="/tools/world-map"
+          emoji="🗺️"
+        />
+        <ToolCard
+          title="Character"
+          description="Quick view and edit for characters."
+          href="/tools/character"
+          emoji="👤"
         />
       </div>
     </div>

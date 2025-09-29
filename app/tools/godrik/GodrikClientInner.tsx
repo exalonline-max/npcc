@@ -15,7 +15,7 @@ export default function GodrikClient() {
   const [motif, setMotif] = useState<typeof MOTIFS[number]>('forge');
   const [length, setLength] = useState<typeof LENGTHS[number]>('medium');
   const [tone, setTone] = useState<typeof TONES[number]>('poetic');
-  const [backend, setBackend] = useState<'ollama'|'openai'|'mock'>('mock');
+    const [backend, setBackend] = useState<'ollama' | 'openai' | 'mock'>('mock');
   const [context, setContext] = useState('');
   const [result, setResult] = useState('');
   const [lorePrev, setLorePrev] = useState<string[]>([]);
@@ -57,31 +57,58 @@ export default function GodrikClient() {
       <Card className="lg:col-span-1">
         <CardHeader><CardTitle>Controls</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <Select value={category as string} onValueChange={(v:any)=>setCategory(v)}>
-            <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>
-            <SelectContent>{(CATS as unknown as string[]).map(c=><SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-          </Select>
-          <Select value={motif as string} onValueChange={(v:any)=>setMotif(v)}>
-            <SelectTrigger><SelectValue placeholder="Motif" /></SelectTrigger>
-            <SelectContent>{(MOTIFS as unknown as string[]).map(m=><SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
-          </Select>
-          <Select value={length as string} onValueChange={(v:any)=>setLength(v)}>
-            <SelectTrigger><SelectValue placeholder="Length" /></SelectTrigger>
-            <SelectContent>{(LENGTHS as unknown as string[]).map(l=><SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
-          </Select>
-          <Select value={tone as string} onValueChange={(v:any)=>setTone(v)}>
-            <SelectTrigger><SelectValue placeholder="Tone" /></SelectTrigger>
-            <SelectContent>{(TONES as unknown as string[]).map(t=><SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-          </Select>
-          <Select value={backend} onValueChange={(v:any)=>setBackend(v)}>
-            <SelectTrigger><SelectValue placeholder="Backend" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ollama">ollama (local)</SelectItem>
-              <SelectItem value="openai">openai</SelectItem>
-              <SelectItem value="mock">mock</SelectItem>
-            </SelectContent>
-          </Select>
-          <Textarea value={context} onChange={(e:any)=>setContext(e.target.value)} placeholder="Optional scene context…" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="text-xs text-gray-600">Category</label>
+              <select className="w-full p-2 border rounded mt-1" value={category} onChange={(e) => setCategory(e.target.value as typeof category)}>
+                <option value="destiny">Destiny</option>
+                <option value="purpose">Purpose</option>
+                <option value="comfort">Comfort</option>
+                <option value="combat">Combat</option>
+                <option value="investigation">Investigation</option>
+                <option value="one_liners">One Liners</option>
+                <option value="questions">Questions</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-600">Motif</label>
+              <select className="w-full p-2 border rounded mt-1" value={motif} onChange={(e) => setMotif(e.target.value as typeof motif)}>
+                <option value="forge">Forge</option>
+                <option value="shield">Shield</option>
+                <option value="stars">Stars</option>
+                <option value="neutral">Neutral</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-600">Length</label>
+              <select className="w-full p-2 border rounded mt-1" value={length} onChange={(e) => setLength(e.target.value as typeof length)}>
+                <option value="short">Short</option>
+                <option value="medium">Medium</option>
+                <option value="long">Long</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-600">Tone</label>
+              <select className="w-full p-2 border rounded mt-1" value={tone} onChange={(e) => setTone(e.target.value as typeof tone)}>
+                <option value="stoic">Stoic</option>
+                <option value="teacherly">Teacherly</option>
+                <option value="poetic">Poetic</option>
+                <option value="commanding">Commanding</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-gray-600">Backend</label>
+              <select className="w-full p-2 border rounded mt-1" value={backend} onChange={(e) => setBackend(e.target.value as typeof backend)}>
+                <option value="ollama">Ollama (local)</option>
+                <option value="openai">OpenAI</option>
+                <option value="mock">Mock</option>
+              </select>
+            </div>
+          </div>
+          <div className="mb-3">
+            <label className="text-xs text-gray-600">Prompt / Context</label>
+            <Textarea value={context} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContext(e.target.value)} placeholder="Optional scene context…" />
+          </div>
           <div className="flex gap-2">
             <Button onClick={generate} disabled={loading}>{loading ? 'Generating…' : 'Generate (G)'}</Button>
             <Button variant="secondary" onClick={copy}>Copy (C)</Button>
