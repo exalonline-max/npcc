@@ -1,8 +1,8 @@
 import AuthForm from '../../components/AuthForm'
 
-export default function SignInPage({ searchParams }: { searchParams?: { mode?: string } }) {
+export default function SignInPage() {
   return (
-    <main style={{padding: 24}}>
+    <main style={{ padding: 24 }}>
       <AuthForm />
     </main>
   )
