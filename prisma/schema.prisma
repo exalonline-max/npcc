@@ -21,3 +21,11 @@ model Character {
   user    User   @relation(fields: [userId], references: [id])
   userId  String
 }
+
+model LoreEntry {
+  id    String   @id @default(cuid())
+  slug  String   @unique
+  tags  String[] @db.VarChar(191)
+  text  String
+  createdAt DateTime @default(now())
+}

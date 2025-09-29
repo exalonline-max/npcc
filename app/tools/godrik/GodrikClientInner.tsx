@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/button';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../../../components/ui/select';
 import { Textarea } from '../../../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 
@@ -57,52 +56,51 @@ export default function GodrikClient() {
       <Card className="lg:col-span-1">
         <CardHeader><CardTitle>Controls</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div className="space-y-3 mb-2">
             <div>
-              <label className="text-xs text-gray-600">Category</label>
-              <select className="w-full p-2 border rounded mt-1" value={category} onChange={(e) => setCategory(e.target.value as typeof category)}>
-                <option value="destiny">Destiny</option>
-                <option value="purpose">Purpose</option>
-                <option value="comfort">Comfort</option>
-                <option value="combat">Combat</option>
-                <option value="investigation">Investigation</option>
-                <option value="one_liners">One Liners</option>
-                <option value="questions">Questions</option>
-              </select>
+              <div className="text-xs text-gray-600 mb-1">Category</div>
+              <div className="flex flex-wrap gap-2">
+                {CATS.map((c) => (
+                  <Button key={c} variant="toggle" active={category === c} onClick={() => setCategory(c)} className="px-3 py-2 text-sm">{c.replace(/_/g,' ')}</Button>
+                ))}
+              </div>
             </div>
+
             <div>
-              <label className="text-xs text-gray-600">Motif</label>
-              <select className="w-full p-2 border rounded mt-1" value={motif} onChange={(e) => setMotif(e.target.value as typeof motif)}>
-                <option value="forge">Forge</option>
-                <option value="shield">Shield</option>
-                <option value="stars">Stars</option>
-                <option value="neutral">Neutral</option>
-              </select>
+              <div className="text-xs text-gray-600 mb-1">Motif</div>
+              <div className="flex gap-2">
+                {MOTIFS.map((m) => (
+                  <Button key={m} variant="toggle" active={motif === m} onClick={() => setMotif(m)} className="px-3 py-2 text-sm">{m}</Button>
+                ))}
+              </div>
             </div>
-            <div>
-              <label className="text-xs text-gray-600">Length</label>
-              <select className="w-full p-2 border rounded mt-1" value={length} onChange={(e) => setLength(e.target.value as typeof length)}>
-                <option value="short">Short</option>
-                <option value="medium">Medium</option>
-                <option value="long">Long</option>
-              </select>
+
+            <div className="flex gap-2 items-start">
+              <div>
+                <div className="text-xs text-gray-600 mb-1">Length</div>
+                <div className="flex gap-2">
+                  {LENGTHS.map((l) => (
+                    <Button key={l} variant="toggle" active={length === l} onClick={() => setLength(l)} className="px-3 py-2 text-sm">{l}</Button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-600 mb-1">Tone</div>
+                <div className="flex gap-2">
+                  {TONES.map((t) => (
+                    <Button key={t} variant="toggle" active={tone === t} onClick={() => setTone(t)} className="px-3 py-2 text-sm">{t}</Button>
+                  ))}
+                </div>
+              </div>
             </div>
+
             <div>
-              <label className="text-xs text-gray-600">Tone</label>
-              <select className="w-full p-2 border rounded mt-1" value={tone} onChange={(e) => setTone(e.target.value as typeof tone)}>
-                <option value="stoic">Stoic</option>
-                <option value="teacherly">Teacherly</option>
-                <option value="poetic">Poetic</option>
-                <option value="commanding">Commanding</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-600">Backend</label>
-              <select className="w-full p-2 border rounded mt-1" value={backend} onChange={(e) => setBackend(e.target.value as typeof backend)}>
-                <option value="ollama">Ollama (local)</option>
-                <option value="openai">OpenAI</option>
-                <option value="mock">Mock</option>
-              </select>
+              <div className="text-xs text-gray-600 mb-1">Backend</div>
+              <div className="flex gap-2">
+                {(['ollama','openai','mock'] as const).map((b) => (
+                  <Button key={b} variant="toggle" active={backend === b} onClick={() => setBackend(b)} className="px-3 py-2 text-sm">{b}</Button>
+                ))}
+              </div>
             </div>
           </div>
           <div className="mb-3">

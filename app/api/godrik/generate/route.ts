@@ -53,7 +53,7 @@ async function callOpenAI(prompt: string) {
 export async function POST(req: NextRequest) {
   const { category, motif, length, tone, context, backend } = await req.json();
   const tags = [category, motif, 'godrik', 'forge_gods'];
-  const loreSnippets = getLoreSnippets(tags);
+  const loreSnippets = await getLoreSnippets(tags);
   const prompt = buildPrompt({ category, motif, length, tone, context, loreSnippets });
 
   try {
