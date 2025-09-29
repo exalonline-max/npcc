@@ -37,3 +37,7 @@ Render deploy notes for npcc
 - Add a small CI step to run `npx prisma migrate deploy` against the production DB as part of deployment.
 
 If you want, I can also run a small seed script to import the current `lib/godrik/lore.yaml` into the DB and push that change for you. Reply with "seed now" to proceed.
+
+---
+
+Manual redeploy requested: 2025-09-29T00:00:00Z
