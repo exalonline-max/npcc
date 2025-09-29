@@ -1,9 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../../../components/ui/select';
+import { Textarea } from '../../../components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 
 const CATS = ['destiny','purpose','comfort','combat','investigation','one_liners','questions'] as const;
 const MOTIFS = ['forge','shield','stars','neutral'] as const;

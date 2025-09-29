@@ -1,5 +1,5 @@
 'use client'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui/card';
 import Link from 'next/link';
 
 export function ToolCard({ title, description, href }: { title: string; description: string; href: string }) {

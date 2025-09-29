@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLoreSnippets } from '@/lib/godrik/rag';
-import { buildPrompt } from '@/lib/godrik/promptTemplate';
+import { getLoreSnippets } from '../../../../lib/godrik/rag';
+import { buildPrompt } from '../../../../lib/godrik/promptTemplate';
 
 const OLLAMA_URL = process.env.OLLAMA_URL ?? 'http://localhost:11434/api/generate';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? 'llama3.1:8b';
