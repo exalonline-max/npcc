@@ -49,6 +49,8 @@ git push -u origin main
 	- Choose Environment: `Node` or `Node (Other)` with the `npm` build commands.
 	- Build command: `npm run build`
 	- Start command: `npm run start`
+
+Note: Render defaults to `pnpm` when detecting a lockfile. This project uses `package-lock.json`/`npm`. In the Render service settings set "Package Manager" to `npm` (or remove `pnpm-lock.yaml` if present) so Render runs `npm ci`/`npm run build` instead of `pnpm`.
 	- Set the Branch to `main` (or your branch).
 
 3. Create a Managed Postgres on Render (if you want persistent DB), then copy the DATABASE_URL for the DB into service environment variables.

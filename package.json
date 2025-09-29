@@ -1,0 +1,25 @@
+{
+  "name": "npcc-dd-tools",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "5.0.0",
+    "@prisma/client": "5.10.1",
+    "next": "14.0.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.15",
+    "prisma": "5.10.1",
+    "typescript": "5.4.2"
+  }
+}
