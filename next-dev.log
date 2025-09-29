@@ -1,0 +1,171 @@
+
+> npcc-dd-tools@0.1.0 dev
+> next dev
+
+   ▲ Next.js 14.0.3
+   - Local:        http://localhost:3000
+   - Environments: .env
+
+ ✓ Ready in 1222ms
+ ✓ Compiled /middleware in 338ms (150 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 559ms (755 modules)
+ ✓ Compiled in 327ms (905 modules)
+ ✓ Compiled /not-found in 352ms (759 modules)
+ ✓ Compiled /signin in 129ms (766 modules)
+ ✓ Compiled in 456ms (780 modules)
+ ✓ Compiled in 81ms (757 modules)
+ ✓ Compiled in 106ms (757 modules)
+ ✓ Compiled /signin in 168ms (441 modules)
+ ✓ Compiled /not-found in 184ms (766 modules)
+ ✓ Compiled in 178ms (768 modules)
+ ✓ Compiled in 229ms (763 modules)
+ ✓ Compiled /signin in 142ms (442 modules)
+ ✓ Compiled in 196ms (762 modules)
+ ✓ Compiled in 209ms (759 modules)
+ ✓ Compiled /signin in 43ms (442 modules)
+ ✓ Compiled /not-found in 441ms (768 modules)
+ ✓ Compiled in 189ms (437 modules)
+ ✓ Compiled in 136ms (437 modules)
+ ⨯ ./app/page.tsx
+Error: 
+  [31mx[0m the name `SignInButton` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [31;1m         ^^^^^^|^^^^^[0m
+   :                [31;1m`-- [31;1mprevious definition of `SignInButton` here[0m[0m
+ [2m2[0m | import Link from 'next/link'
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [33;1m         ^^^^^^|^^^^^[0m
+   :                [33;1m`-- [33;1m`SignInButton` redefined here[0m[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+   `----
+
+  [31mx[0m the name `SignedIn` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [31;1m                       ^^^^|^^^[0m
+   :                            [31;1m`-- [31;1mprevious definition of `SignedIn` here[0m[0m
+ [2m2[0m | import Link from 'next/link'
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [33;1m                       ^^^^|^^^[0m
+   :                            [33;1m`-- [33;1m`SignedIn` redefined here[0m[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+   `----
+
+  [31mx[0m the name `SignedOut` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [31;1m                                 ^^^^|^^^^[0m
+   :                                      [31;1m`-- [31;1mprevious definition of `SignedOut` here[0m[0m
+ [2m2[0m | import Link from 'next/link'
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [33;1m                                 ^^^^|^^^^[0m
+   :                                      [33;1m`-- [33;1m`SignedOut` redefined here[0m[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+   `----
+
+  [31mx[0m the name `Link` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+ [2m2[0m | import Link from 'next/link'
+   : [31;1m       ^^|^[0m
+   :          [31;1m`-- [31;1mprevious definition of `Link` here[0m[0m
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+ [2m4[0m | import Link from 'next/link'
+   : [33;1m       ^^|^[0m
+   :          [33;1m`-- [33;1m`Link` redefined here[0m[0m
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+ [2m7[0m |   return (
+   `----
+
+Import trace for requested module:
+./app/page.tsx
+ ⨯ ./app/layout.tsx
+Error: 
+  [31mx[0m Unexpected token `html`. Expected jsx identifier
+    ,-[[36;1;4m/Users/larente/npcc/app/layout.tsx[0m:10:1]
+ [2m10[0m | export default function RootLayout({ children }: { children: React.ReactNode }) {
+ [2m11[0m |   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ [2m12[0m |   return (
+ [2m13[0m |     <html lang="en">
+    : [31;1m     ^^^^[0m
+ [2m14[0m |       <body>
+ [2m15[0m |         <ClerkProvider publishableKey={publishableKey}>
+ [2m16[0m |           <header style={{display: 'flex', justifyContent: 'space-between', padding: 12}}>
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/layout.tsx
+ ✓ Compiled in 137ms (314 modules)
+ ⨯ ./app/page.tsx
+Error: 
+  [31mx[0m the name `SignInButton` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [31;1m         ^^^^^^|^^^^^[0m
+   :                [31;1m`-- [31;1mprevious definition of `SignInButton` here[0m[0m
+ [2m2[0m | import Link from 'next/link'
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [33;1m         ^^^^^^|^^^^^[0m
+   :                [33;1m`-- [33;1m`SignInButton` redefined here[0m[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+   `----
+
+  [31mx[0m the name `SignedIn` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [31;1m                       ^^^^|^^^[0m
+   :                            [31;1m`-- [31;1mprevious definition of `SignedIn` here[0m[0m
+ [2m2[0m | import Link from 'next/link'
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [33;1m                       ^^^^|^^^[0m
+   :                            [33;1m`-- [33;1m`SignedIn` redefined here[0m[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+   `----
+
+  [31mx[0m the name `SignedOut` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [31;1m                                 ^^^^|^^^^[0m
+   :                                      [31;1m`-- [31;1mprevious definition of `SignedOut` here[0m[0m
+ [2m2[0m | import Link from 'next/link'
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+   : [33;1m                                 ^^^^|^^^^[0m
+   :                                      [33;1m`-- [33;1m`SignedOut` redefined here[0m[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+   `----
+
+  [31mx[0m the name `Link` is defined multiple times
+   ,-[[36;1;4m/Users/larente/npcc/app/page.tsx[0m:1:1]
+ [2m1[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+ [2m2[0m | import Link from 'next/link'
+   : [31;1m       ^^|^[0m
+   :          [31;1m`-- [31;1mprevious definition of `Link` here[0m[0m
+ [2m3[0m | import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
+ [2m4[0m | import Link from 'next/link'
+   : [33;1m       ^^|^[0m
+   :          [33;1m`-- [33;1m`Link` redefined here[0m[0m
+ [2m5[0m | 
+ [2m6[0m | export default function Page() {
+ [2m7[0m |   return (
+   `----
+
+Import trace for requested module:
+./app/page.tsx

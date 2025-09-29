@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env.local
+.env
+dev.db
+/.env
+.DS_Store
+.vscode/
+.idea/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env.test
