@@ -9,6 +9,7 @@ export default function WildMagicClient(){
   const [effects, setEffects] = useState<any[] | null>(null)
   const [legendaryIds, setLegendaryIds] = useState<number[] | null>(null)
   const [flash, setFlash] = useState(false)
+  const [signedIn, setSignedIn] = useState<boolean | null>(null)
   const [shake, setShake] = useState(false)
   const [showTable, setShowTable] = useState(false)
 
@@ -19,6 +20,14 @@ export default function WildMagicClient(){
     setEffects(data.effects)
     setLegendaryIds(Array.isArray(data.legendaryIds) ? data.legendaryIds : null)
     return data.effects
+  }
+
+  async function loadAuth(){
+    try{
+      const res = await fetch('/api/wild-magic/auth')
+      const data = await res.json()
+      setSignedIn(!!data?.signedIn)
+    } catch (e){ setSignedIn(false) }
   }
 
   async function roll(){
@@ -45,6 +54,9 @@ export default function WildMagicClient(){
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [effects])
+
+  // load auth status once
+  React.useEffect(()=>{ loadAuth() }, [])
 
   async function copyResult(){
     if (!result) return
@@ -75,6 +87,9 @@ export default function WildMagicClient(){
 
   function getRarity(id?: number | null){
     if (!id) return 'Common'
+    // prefer per-effect rarity if present
+    const eff = effects?.find((e:any)=>e.id===id)
+    if (eff && typeof eff.rarity === 'string') return eff.rarity
     if (legendaryIds && legendaryIds.includes(id)) return 'Legendary'
     // simple heuristic based on id ranges: most are Common
     if (id >= 271 && id <= 290) return 'Rare'
@@ -136,12 +151,14 @@ export default function WildMagicClient(){
                 </div>
                 <div style={{marginTop:8}}>
                   <small className="text-xs text-gray-500">Rarity influences game impact</small>
+                  {signedIn === false && <a href="/signin" className="text-sm text-blue-600">Sign in to send</a>}
+                  {signedIn === true && <span className="text-sm text-green-600">Signed in</span>}
                 </div>
               </div>
             </div>
                 <div className="mt-2">
                   <button className="btn copy-btn" onClick={copyResult}>Copy</button>
-                  <button className="btn ml-2" onClick={sendToDiscord} disabled={!index}>Send to Discord</button>
+                  <button className="btn ml-2" onClick={sendToDiscord} disabled={!index || signedIn === false}>{signedIn === false ? 'Sign in to send' : 'Send to Discord'}</button>
                   {sendStatus && <span className="ml-2 text-sm text-gray-600">{sendStatus}</span>}
                 </div>
           </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs'
+import { currentUser } from '@clerk/nextjs/server'
 
 type Body = { id?: number; text?: string }
 
@@ -14,6 +15,10 @@ async function postToDiscord(webhook: string, content: string){
 }
 
 export async function POST(req: Request){
+  // require signed-in user
+  const user = await currentUser()
+  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
   const webhook = process.env.DISCORD_WILDMAGIC_WEBHOOK
   if (!webhook) return NextResponse.json({ error: 'DISCORD_WILDMAGIC_WEBHOOK not configured' }, { status: 500 })
 
