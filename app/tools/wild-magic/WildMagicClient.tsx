@@ -12,6 +12,8 @@ export default function WildMagicClient(){
   const [signedIn, setSignedIn] = useState<boolean | null>(null)
   const [shake, setShake] = useState(false)
   const [showTable, setShowTable] = useState(false)
+  const [narrativeVisible, setNarrativeVisible] = useState(true)
+  const [combatVisible, setCombatVisible] = useState(true)
 
   async function loadEffects(){
     if (effects) return effects
@@ -30,27 +32,69 @@ export default function WildMagicClient(){
     } catch (e){ setSignedIn(false) }
   }
 
-  async function roll(){
-    const list = await loadEffects()
+  // generic roll helper that supports filtering by category
+  function containsCondition(text: string){
+    if (!text) return false
+    const t = text.toLowerCase()
+    const conditionWords = [
+      'when you', 'when you ', 'open', 'open a', 'open the', 'nearest', 'within', 'near', 'hand', 'give', 'place', 'enter', 'the next', 'next ', 'next ', 'until the', 'as a bonus action', 'before', 'after', 'if ', 'the next creature', 'next creature', 'next small', 'next coin'
+    ]
+    return conditionWords.some(w => t.includes(w))
+  }
+
+  function isCombatEffect(text: string){
+    if (!text) return false
+    const t = text.toLowerCase()
+    const combatWords = ['attack', 'damage', 'heal', 'hit points', 'teleport', 'flying', 'resistance', 'spell', 'fireball', 'lightning', 'action', 'guardian', 'flying speed', 'extra action', 'regain']
+    return combatWords.some(w => t.includes(w))
+  }
+
+  async function pickAndReveal(list:any[]){
     if (!list || list.length === 0) return
     const i = Math.floor(Math.random() * list.length)
     setIndex(list[i].id)
     setResult(list[i].text)
-    // keep the viewport focused on the top result area (avoid scrolling down to the table)
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-    // flash animation for the big reveal
-    setFlash(true)
-    setShake(true)
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
+    setFlash(true); setShake(true)
     setTimeout(() => setFlash(false), 900)
     setTimeout(() => setShake(false), 420)
     spawnConfetti()
   }
 
-  // keyboard shortcut: 'r' to roll
+  async function rollCombat(){
+    const list = await loadEffects()
+    if (!list || list.length === 0) return
+    // filter out conditional effects and prefer those that look combat-related
+    const candidates = list.filter((e:any)=> !containsCondition(e.text) && isCombatEffect(e.text))
+    if (candidates.length === 0){
+      // fallback: any non-conditional effect
+      const fallback = list.filter((e:any)=> !containsCondition(e.text))
+      await pickAndReveal(fallback.length ? fallback : list)
+      return
+    }
+    await pickAndReveal(candidates)
+  }
+
+  async function rollNarrative(){
+    const list = await loadEffects()
+    if (!list || list.length === 0) return
+    // narrative = non-combat effects and non-conditional
+    const candidates = list.filter((e:any)=> !containsCondition(e.text) && !isCombatEffect(e.text))
+    if (candidates.length === 0){
+      const fallback = list.filter((e:any)=> !containsCondition(e.text))
+      await pickAndReveal(fallback.length ? fallback : list)
+      return
+    }
+    await pickAndReveal(candidates)
+  }
+
+  // keyboard shortcuts: 'r' for narrative, 'c' for combat
   React.useEffect(()=>{
-    const onKey = (e:KeyboardEvent) => { if (e.key.toLowerCase() === 'r') roll() }
+    const onKey = (e:KeyboardEvent) => {
+      const k = e.key.toLowerCase()
+      if (k === 'r') rollNarrative()
+      if (k === 'c') rollCombat()
+    }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [effects])
@@ -127,9 +171,11 @@ export default function WildMagicClient(){
 
   return (
   <div className={"space-y-4" + (shake ? ' shake' : '')}>
-      <div className="flex gap-2 items-center">
-        <Button variant="primary" onClick={roll}>Roll for Wild Magic</Button>
-        <Button variant="secondary" onClick={() => { setResult(null); setIndex(null) }}>Clear</Button>
+      <div className="flex items-center" style={{gap:12,marginBottom:12}}>
+        <div style={{display:'flex',gap:12}}>
+          <Button variant="primary" onClick={rollCombat}>Roll Combat Wild Magic</Button>
+          <Button variant="primary" onClick={rollNarrative}>Roll Narrative Wild Magic</Button>
+        </div>
       </div>
 
       <div className="p-4 border rounded bg-white">
@@ -138,27 +184,27 @@ export default function WildMagicClient(){
         {result ? (
           <div>
             <div style={{display:'flex',alignItems:'center',gap:12}}>
-              <div style={{display:'flex',flexDirection:'column'}}>
-                <div className="text-sm text-gray-500">Effect #{index}</div>
+              <div style={{display:'flex',flexDirection:'column',flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:12}}>
+                  <div className="text-sm text-gray-500">Effect #{index}</div>
+                  <div style={{padding:'4px 8px',borderRadius:999,display:'flex',alignItems:'center',gap:8,boxShadow:`0 6px 18px ${rarityColor(getRarity(index))}33`}}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill={rarityColor(getRarity(index))} /></svg>
+                    <span style={{fontSize:12,fontWeight:600,color:rarityColor(getRarity(index))}}>{getRarity(index)}</span>
+                  </div>
+                </div>
                 <div className={"mt-2 wild-effect" + (flash ? ' flash' : '')} style={{fontSize:18,lineHeight:1.3}}>
                   {flash ? <span className="reveal">{result}</span> : result}
                 </div>
               </div>
-              <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end'}}>
-                <div style={{padding:'6px 10px',borderRadius:999,background:`linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))`,boxShadow:`0 6px 18px ${rarityColor(getRarity(index))}33`,display:'flex',alignItems:'center',gap:8}}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill={rarityColor(getRarity(index))} /></svg>
-                  <span style={{fontSize:12,fontWeight:600,color:rarityColor(getRarity(index))}}>{getRarity(index)}</span>
-                </div>
+              <div style={{marginLeft:12,display:'flex',flexDirection:'column',alignItems:'flex-end'}}>
                 <div style={{marginTop:8}}>
-                  <small className="text-xs text-gray-500">Rarity influences game impact</small>
-                  {signedIn === false && <a href="/signin" className="text-sm text-blue-600">Sign in to send</a>}
-                  {signedIn === true && <span className="text-sm text-green-600">Signed in</span>}
+                  {signedIn === true && <div style={{marginTop:6}}><span className="text-sm text-green-600">Signed in</span></div>}
                 </div>
               </div>
             </div>
                 <div className="mt-2">
                   <button className="btn copy-btn" onClick={copyResult}>Copy</button>
-                  <button className="btn ml-2" onClick={sendToDiscord} disabled={!index || signedIn === false}>{signedIn === false ? 'Sign in to send' : 'Send to Discord'}</button>
+                  {signedIn === true && <button className="btn ml-2" onClick={sendToDiscord} disabled={!index}>{'Send to Discord'}</button>}
                   {sendStatus && <span className="ml-2 text-sm text-gray-600">{sendStatus}</span>}
                 </div>
           </div>
@@ -173,16 +219,103 @@ export default function WildMagicClient(){
           <button className="btn btn-outline" onClick={async ()=>{ setShowTable(!showTable); if (!effects) await loadEffects() }}>{showTable ? 'Hide' : 'Show'}</button>
         </div>
         {showTable && (
-          <div className="mt-2 space-y-2 max-h-72 overflow-auto p-2 border rounded bg-white">
+          <div className="mt-2 p-2 bg-white" style={{border:'1px solid #e5e7eb',borderRadius:8,padding:12}}>
             {effects ? (
-              effects.map((e:any) => (
-                <div key={e.id} id={`wm-${e.id}`} className={index === e.id ? 'p-2 rounded bg-yellow-50' : ''}><strong>#{e.id}:</strong> {e.text}</div>
-              ))
+              <div>
+                <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:8}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <label className="text-sm">Narrative</label>
+                    <select value={narrativeVisible ? 'show' : 'hide'} onChange={(ev)=>setNarrativeVisible(ev.target.value === 'show')} style={{padding:6,borderRadius:6}}>
+                      <option value="show">Show</option>
+                      <option value="hide">Hide</option>
+                    </select>
+                  </div>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <label className="text-sm">Combat</label>
+                    <select value={combatVisible ? 'show' : 'hide'} onChange={(ev)=>setCombatVisible(ev.target.value === 'show')} style={{padding:6,borderRadius:6}}>
+                      <option value="show">Show</option>
+                      <option value="hide">Hide</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Narrative table (stacked) */}
+                {narrativeVisible && (
+                  <div style={{border:'1px solid #e5e7eb',borderRadius:6,overflow:'hidden',marginBottom:12}}>
+                    <div style={{maxHeight:600,overflow:'auto'}}>
+                      <table style={{width:'100%',borderCollapse:'collapse'}}>
+                        <thead>
+                          <tr style={{position:'sticky',top:0,background:'#fff',zIndex:2,borderBottom:'1px solid #e5e7eb'}}>
+                            <th style={{width:80,padding:10,textAlign:'left'}}>Number</th>
+                            <th style={{padding:10,textAlign:'left'}}>Effect</th>
+                            <th style={{width:120,padding:10,textAlign:'right'}}>Rarity</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {effects.filter((e:any)=>e.category === 'narrative').map((e:any)=> (
+                            <tr key={e.id} className={index === e.id ? 'bg-yellow-50' : ''}>
+                              <td style={{padding:10,verticalAlign:'top',whiteSpace:'nowrap'}}><strong>#{e.id}</strong></td>
+                              <td style={{padding:10,verticalAlign:'top'}}>{e.text}</td>
+                              <td style={{padding:10,verticalAlign:'top',textAlign:'right'}}>
+                                <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'4px 8px',borderRadius:999,boxShadow:`0 6px 18px ${rarityColor(e.rarity || getRarity(e.id))}33`}}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill={rarityColor(e.rarity || getRarity(e.id))} /></svg>
+                                  <span style={{fontSize:12,fontWeight:600,color:rarityColor(e.rarity || getRarity(e.id))}}>{e.rarity || getRarity(e.id)}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Combat table (stacked) */}
+                {combatVisible && (
+                  <div style={{border:'1px solid #e5e7eb',borderRadius:6,overflow:'hidden'}}>
+                    <div style={{maxHeight:600,overflow:'auto'}}>
+                      <table style={{width:'100%',borderCollapse:'collapse'}}>
+                        <thead>
+                          <tr style={{position:'sticky',top:0,background:'#fff',zIndex:2,borderBottom:'1px solid #e5e7eb'}}>
+                            <th style={{width:80,padding:10,textAlign:'left'}}>Number</th>
+                            <th style={{padding:10,textAlign:'left'}}>Effect</th>
+                            <th style={{width:120,padding:10,textAlign:'right'}}>Rarity</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {effects.filter((e:any)=>e.category === 'combat').map((e:any)=> (
+                            <tr key={e.id} className={index === e.id ? 'bg-yellow-50' : ''}>
+                              <td style={{padding:10,verticalAlign:'top',whiteSpace:'nowrap'}}><strong>#{e.id}</strong></td>
+                              <td style={{padding:10,verticalAlign:'top'}}>{e.text}</td>
+                              <td style={{padding:10,verticalAlign:'top',textAlign:'right'}}>
+                                <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'4px 8px',borderRadius:999,boxShadow:`0 6px 18px ${rarityColor(e.rarity || getRarity(e.id))}33`}}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill={rarityColor(e.rarity || getRarity(e.id))} /></svg>
+                                  <span style={{fontSize:12,fontWeight:600,color:rarityColor(e.rarity || getRarity(e.id))}}>{e.rarity || getRarity(e.id)}</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="text-sm text-gray-600">Table will appear after first load.</div>
             )}
           </div>
         )}
+      </div>
+
+      <div className="mt-6 p-4 border rounded bg-gray-50 text-sm text-gray-700">
+        <h4 className="font-semibold">Info</h4>
+        <ul className="mt-2 list-disc pl-5">
+          <li><strong>Shortcuts:</strong> press <code>r</code> for Narrative roll, <code>c</code> for Combat roll.</li>
+          <li><strong>Rarity:</strong> Common, Uncommon, Rare, Legendary — influences flavor and power.</li>
+          <li><strong>Discord:</strong> the "Send to Discord" button is only visible if you are signed in.</li>
+          <li><strong>Behavior:</strong> effects that required opening or being near something are filtered out so every result applies immediately.</li>
+        </ul>
       </div>
     </div>
   )
