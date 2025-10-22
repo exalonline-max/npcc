@@ -59,47 +59,47 @@
     { "id": 57, "category": "narrative", "rarity": "Uncommon", "text": "A helpful mental note reminds you of a trivial detail you recently noticed." },
     { "id": 58, "category": "narrative", "rarity": "Uncommon", "text": "A soft voice in your head suggests a witty reply; roleplay only." },
     { "id": 59, "category": "narrative", "rarity": "Uncommon", "text": "A pleasant image settles in your mind and steadies you for a moment." },
-    { "id": 60, "category": "narrative", "rarity": "Uncommon", "text": "A faint shimmer outlines a hidden seam, revealing a simple latch or loose stone within 30 feet (DM chooses).", }
+    { "id": 60, "category": "narrative", "rarity": "Uncommon", "text": "A faint shimmer outlines a hidden seam, revealing a simple latch or loose stone within 30 feet (DM chooses)." },
     { "id": 61, "category": "narrative", "rarity": "Uncommon", "text": "A neighborly whisper offers a tip that makes a choice clearer; roleplay only." },
     { "id": 62, "category": "narrative", "rarity": "Uncommon", "text": "A gentle glow makes your next small art or craft project look more polished." },
-    { "id": 63, "category": "narrative", "rarity": "Uncommon", "text": "A cryptic couplet whispers a clue about a nearby obstacle; the DM provides a short hint relevant to the current scene.", }
+    { "id": 63, "category": "narrative", "rarity": "Uncommon", "text": "A cryptic couplet whispers a clue about a nearby obstacle; the DM provides a short hint relevant to the current scene." },
     { "id": 64, "category": "narrative", "rarity": "Uncommon", "text": "A small token of fondness appears in your pocket and feels sincere." },
     { "id": 65, "category": "narrative", "rarity": "Uncommon", "text": "A brief flash of inspiration improves the flavor of your next minor creation." },
     { "id": 66, "category": "narrative", "rarity": "Uncommon", "text": "A calm presence eases tensions around you for a short while; roleplay only." },
     { "id": 67, "category": "narrative", "rarity": "Uncommon", "text": "A tiny charm gently clinks in your pocket with a reassuring tone." },
     { "id": 68, "category": "narrative", "rarity": "Uncommon", "text": "A soft lantern-like glow makes a small map easier to read (flavor)." },
-    { "id": 69, "category": "narrative", "rarity": "Uncommon", "text": "Words appear in the air for a moment: a brief omen or direction related to your goal (DM supplies the message).", }
+    { "id": 69, "category": "narrative", "rarity": "Uncommon", "text": "Words appear in the air for a moment: a brief omen or direction related to your goal (DM supplies the message)." },
     { "id": 70, "category": "narrative", "rarity": "Uncommon", "text": "A gentle, encouraging murmur helps you organize your thoughts; roleplay only." },
     { "id": 71, "category": "narrative", "rarity": "Uncommon", "text": "A harmless symbol for good fortune glows briefly on your palm." },
     { "id": 72, "category": "narrative", "rarity": "Uncommon", "text": "A small sound like distant applause follows your next kind word; decorative." },
-    { "id": 73, "category": "narrative", "rarity": "Uncommon", "text": "An illusory arrow overlays a safe route to the nearest nonmagical exit or shelter (DM determines the path).", }
+    { "id": 73, "category": "narrative", "rarity": "Uncommon", "text": "An illusory arrow overlays a safe route to the nearest nonmagical exit or shelter (DM determines the path)." },
     { "id": 74, "category": "narrative", "rarity": "Uncommon", "text": "A tiny quiet bell rings and you feel a momentary calm focus." },
     { "id": 75, "category": "narrative", "rarity": "Uncommon", "text": "A gentle gust brings a faint scent that sparks a pleasant memory." },
     { "id": 76, "category": "narrative", "rarity": "Uncommon", "text": "A small glowing glyph appears on your notebook, improving a sketch's look." },
-    { "id": 77, "category": "narrative", "rarity": "Uncommon", "text": "You receive a vivid flash of a useful face or landmark nearby; the DM may introduce a friendly contact or recognizable sign.", }
+    { "id": 77, "category": "narrative", "rarity": "Uncommon", "text": "You receive a vivid flash of a useful face or landmark nearby; the DM may introduce a friendly contact or recognizable sign." },
     { "id": 78, "category": "narrative", "rarity": "Uncommon", "text": "A tiny, helpful thought suggests a safer route in conversation; roleplay hint." },
     { "id": 79, "category": "narrative", "rarity": "Uncommon", "text": "A pleasant little tune plays in the background of your next line of prose, enhancing it." },
     { "id": 80, "category": "narrative", "rarity": "Uncommon", "text": "A soft shimmer makes your cloak look slightly more impressive for a short while." },
-    { "id": 81, "category": "narrative", "rarity": "Rare", "text": "One sealed nonmagical container or drawer within 30 feet pops open harmlessly, revealing its mundane contents.", }
-    { "id": 82, "category": "narrative", "rarity": "Rare", "text": "A nearby lock clicks faintly if it is trapped or tampered with; you learn whether one chosen nonmagical lock within 30 feet is trapped.", }
-    { "id": 83, "category": "narrative", "rarity": "Rare", "text": "A hidden compartment or loose floorboard within 15 feet creaks audibly, hinting at a stashed item or clue.", }
-    { "id": 84, "category": "narrative", "rarity": "Rare", "text": "The sound of a distant lock turning echoes around you; one nonmagical lock of the DM’s choice within the current scene unlocks.", }
-    { "id": 85, "category": "narrative", "rarity": "Rare", "text": "Recent tracks within 30 feet glow faintly for 1 minute; you have advantage on Wisdom (Perception or Survival) checks to follow them.", }
-    { "id": 86, "category": "narrative", "rarity": "Rare", "text": "You recall a password, sign, or local custom that eases passage here; the DM provides a small social key that opens a minor door or favor.", }
-    { "id": 87, "category": "narrative", "rarity": "Rare", "text": "An NPC who owes you a kindness thinks of you; the DM may introduce a messenger, note, or chance meeting with a helpful tip.", }
-    { "id": 88, "category": "narrative", "rarity": "Rare", "text": "A nearby door, drawer, or window hums softly if something unusual lies beyond it (DM indicates one such point within 30 feet).", }
-    { "id": 89, "category": "narrative", "rarity": "Rare", "text": "A neutral bystander or passerby takes a friendly interest and offers a small lead, rumor, or shortcut (DM provides one useful tidbit).", }
-    { "id": 90, "category": "narrative", "rarity": "Rare", "text": "A folded scrap marked with a symbol appears in your pocket; it points toward the next point of interest (DM clarifies how).", }
-    { "id": 91, "category": "narrative", "rarity": "Rare", "text": "You glimpse one likely consequence; the DM honestly answers one yes/no question about the current social situation.", }
-    { "id": 92, "category": "narrative", "rarity": "Rare", "text": "A harmless spectral key appears and points toward the nearest locked, unopened nonmagical door within 60 feet.", }
-    { "id": 93, "category": "narrative", "rarity": "Rare", "text": "Fog parts or sunlight pierces briefly to reveal a hidden landmark or sign in the area (DM chooses what is revealed).", }
-    { "id": 94, "category": "narrative", "rarity": "Rare", "text": "An illusory signpost appears for 1 minute with a single enigmatic word chosen by the DM, hinting at a direction or theme.", }
-    { "id": 95, "category": "narrative", "rarity": "Rare", "text": "A tiny, harmless animal guide appears and tries to lead you somewhere interesting for 10 minutes (DM decides where).", }
-    { "id": 96, "category": "narrative", "rarity": "Legendary", "text": "You cast *Fireball* (3rd-level) centered on a point you can see within 150 feet; it requires no components or spell slot.", }
-    { "id": 97, "category": "narrative", "rarity": "Legendary", "text": "You cast *Lightning Bolt* (3rd-level) in a 100-foot line you choose; it requires no components or spell slot.", }
-    { "id": 98, "category": "narrative", "rarity": "Legendary", "text": "You gain one extra action this turn. This action can be used to take the Attack (one weapon attack), Dash, Disengage, Hide, Use an Object, or cast a cantrip.", }
-    { "id": 99, "category": "narrative", "rarity": "Legendary", "text": "Allies you choose within 30 feet immediately regain hit points equal to their hit point maximum (they are healed to full).", }
-    { "id": 100, "category": "narrative", "rarity": "Legendary", "text": "You immediately regain all expended spell slots of 3rd level and lower.", }
+    { "id": 81, "category": "narrative", "rarity": "Rare", "text": "One sealed nonmagical container or drawer within 30 feet pops open harmlessly, revealing its mundane contents." },
+    { "id": 82, "category": "narrative", "rarity": "Rare", "text": "A nearby lock clicks faintly if it is trapped or tampered with; you learn whether one chosen nonmagical lock within 30 feet is trapped." },
+    { "id": 83, "category": "narrative", "rarity": "Rare", "text": "A hidden compartment or loose floorboard within 15 feet creaks audibly, hinting at a stashed item or clue." },
+    { "id": 84, "category": "narrative", "rarity": "Rare", "text": "The sound of a distant lock turning echoes around you; one nonmagical lock of the DM’s choice within the current scene unlocks." },
+    { "id": 85, "category": "narrative", "rarity": "Rare", "text": "Recent tracks within 30 feet glow faintly for 1 minute; you have advantage on Wisdom (Perception or Survival) checks to follow them." },
+    { "id": 86, "category": "narrative", "rarity": "Rare", "text": "You recall a password, sign, or local custom that eases passage here; the DM provides a small social key that opens a minor door or favor." },
+    { "id": 87, "category": "narrative", "rarity": "Rare", "text": "An NPC who owes you a kindness thinks of you; the DM may introduce a messenger, note, or chance meeting with a helpful tip." },
+    { "id": 88, "category": "narrative", "rarity": "Rare", "text": "A nearby door, drawer, or window hums softly if something unusual lies beyond it (DM indicates one such point within 30 feet)." },
+    { "id": 89, "category": "narrative", "rarity": "Rare", "text": "A neutral bystander or passerby takes a friendly interest and offers a small lead, rumor, or shortcut (DM provides one useful tidbit)." },
+    { "id": 90, "category": "narrative", "rarity": "Rare", "text": "A folded scrap marked with a symbol appears in your pocket; it points toward the next point of interest (DM clarifies how)." },
+    { "id": 91, "category": "narrative", "rarity": "Rare", "text": "You glimpse one likely consequence; the DM honestly answers one yes/no question about the current social situation." },
+    { "id": 92, "category": "narrative", "rarity": "Rare", "text": "A harmless spectral key appears and points toward the nearest locked, unopened nonmagical door within 60 feet." },
+    { "id": 93, "category": "narrative", "rarity": "Rare", "text": "Fog parts or sunlight pierces briefly to reveal a hidden landmark or sign in the area (DM chooses what is revealed)." },
+    { "id": 94, "category": "narrative", "rarity": "Rare", "text": "An illusory signpost appears for 1 minute with a single enigmatic word chosen by the DM, hinting at a direction or theme." },
+    { "id": 95, "category": "narrative", "rarity": "Rare", "text": "A tiny, harmless animal guide appears and tries to lead you somewhere interesting for 10 minutes (DM decides where)." },
+    { "id": 96, "category": "narrative", "rarity": "Legendary", "text": "You cast *Fireball* (3rd-level) centered on a point you can see within 150 feet; it requires no components or spell slot." },
+    { "id": 97, "category": "narrative", "rarity": "Legendary", "text": "You cast *Lightning Bolt* (3rd-level) in a 100-foot line you choose; it requires no components or spell slot." },
+    { "id": 98, "category": "narrative", "rarity": "Legendary", "text": "You gain one extra action this turn. This action can be used to take the Attack (one weapon attack), Dash, Disengage, Hide, Use an Object, or cast a cantrip." },
+    { "id": 99, "category": "narrative", "rarity": "Legendary", "text": "Allies you choose within 30 feet immediately regain hit points equal to their hit point maximum (they are healed to full)." },
+    { "id": 100, "category": "narrative", "rarity": "Legendary", "text": "You immediately regain all expended spell slots of 3rd level and lower." }
   ,
     { "id": 101, "category": "general", "rarity": "Common", "text": "A harmless spark flickers from your weapon, creating a loud but harmless pop." },
     { "id": 102, "category": "general", "rarity": "Common", "text": "You feel a quick jolt of alertness that steadies your aim for a moment (flavor)." },
@@ -171,21 +171,21 @@
     { "id": 168, "category": "general", "rarity": "Uncommon", "text": "A faint shield of light reduces sharp discomfort for a moment; flavor benefit." },
     { "id": 169, "category": "general", "rarity": "Uncommon", "text": "A bright sparkle draws a foe's eye for an instant, giving room for a tactic (DM discretion)." },
     { "id": 170, "category": "general", "rarity": "Uncommon", "text": "A small, steadying warmth returns some composure, aiding subsequent actions." },
-    { "id": 171, "category": "general", "rarity": "Rare", "text": "A bright flash distracts one creature you can see; it has disadvantage on the next attack roll or ability check it makes before the end of its next turn.", }
-    { "id": 172, "category": "general", "rarity": "Rare", "text": "A ringing note steadies your focus; you have advantage on the next attack roll or ability check you make before the end of your next turn.", }
-    { "id": 173, "category": "general", "rarity": "Rare", "text": "A gentle gust nudges you; you can immediately move up to 5 feet without provoking opportunity attacks.", }
-    { "id": 174, "category": "general", "rarity": "Rare", "text": "A tiny thunderpop startles nearby creatures; one creature of your choice within 10 feet must succeed on a DC 10 Wisdom save or is distracted, granting you or an ally advantage on the next check against it before the end of your next turn.", }
-    { "id": 175, "category": "general", "rarity": "Rare", "text": "Your next damage roll from a weapon attack or spell before the end of your next turn deals an extra 1d4 damage of a type of your choice.", }
-    { "id": 176, "category": "general", "rarity": "Rare", "text": "You can take one additional bonus action this turn, but only to Dash, Disengage, or Use an Object (simple interaction).", }
-    { "id": 177, "category": "general", "rarity": "Rare", "text": "A spectral buckler hovers at your side for 1 minute; you gain +1 AC. The buckler vanishes if you are incapacitated.", }
-    { "id": 178, "category": "general", "rarity": "Rare", "text": "You can cast one cantrip you know as a bonus action this turn.", }
-    { "id": 179, "category": "general", "rarity": "Rare", "text": "As a bonus action, you can teleport up to 10 feet to an unoccupied space you can see.", }
-    { "id": 180, "category": "general", "rarity": "Rare", "text": "You and one ally you can see each regain 1d6 hit points.", }
-    { "id": 181, "category": "general", "rarity": "Legendary", "text": "Until the start of your next turn, you have resistance to all damage and advantage on saving throws.", }
-    { "id": 182, "category": "general", "rarity": "Legendary", "text": "Your next attack or spell that deals damage before the end of your next turn deals maximum damage.", }
-    { "id": 183, "category": "general", "rarity": "Legendary", "text": "As a bonus action this turn, you can teleport to any unoccupied space you can see within 120 feet.", }
-    { "id": 184, "category": "general", "rarity": "Legendary", "text": "A spectral guardian shields your group for 1 minute; as a reaction (once per round), it imposes disadvantage on one attack against you or an ally within 10 feet.", }
-    { "id": 185, "category": "general", "rarity": "Legendary", "text": "You gain a 60-foot flying speed for 1 minute.", }
+    { "id": 171, "category": "general", "rarity": "Rare", "text": "A bright flash distracts one creature you can see; it has disadvantage on the next attack roll or ability check it makes before the end of its next turn." },
+    { "id": 172, "category": "general", "rarity": "Rare", "text": "A ringing note steadies your focus; you have advantage on the next attack roll or ability check you make before the end of your next turn." },
+    { "id": 173, "category": "general", "rarity": "Rare", "text": "A gentle gust nudges you; you can immediately move up to 5 feet without provoking opportunity attacks." },
+    { "id": 174, "category": "general", "rarity": "Rare", "text": "A tiny thunderpop startles nearby creatures; one creature of your choice within 10 feet must succeed on a DC 10 Wisdom save or is distracted, granting you or an ally advantage on the next check against it before the end of your next turn." },
+    { "id": 175, "category": "general", "rarity": "Rare", "text": "Your next damage roll from a weapon attack or spell before the end of your next turn deals an extra 1d4 damage of a type of your choice." },
+    { "id": 176, "category": "general", "rarity": "Rare", "text": "You can take one additional bonus action this turn, but only to Dash, Disengage, or Use an Object (simple interaction)." },
+    { "id": 177, "category": "general", "rarity": "Rare", "text": "A spectral buckler hovers at your side for 1 minute; you gain +1 AC. The buckler vanishes if you are incapacitated." },
+    { "id": 178, "category": "general", "rarity": "Rare", "text": "You can cast one cantrip you know as a bonus action this turn." },
+    { "id": 179, "category": "general", "rarity": "Rare", "text": "As a bonus action, you can teleport up to 10 feet to an unoccupied space you can see." },
+    { "id": 180, "category": "general", "rarity": "Rare", "text": "You and one ally you can see each regain 1d6 hit points." },
+    { "id": 181, "category": "general", "rarity": "Legendary", "text": "Until the start of your next turn, you have resistance to all damage and advantage on saving throws." },
+    { "id": 182, "category": "general", "rarity": "Legendary", "text": "Your next attack or spell that deals damage before the end of your next turn deals maximum damage." },
+    { "id": 183, "category": "general", "rarity": "Legendary", "text": "As a bonus action this turn, you can teleport to any unoccupied space you can see within 120 feet." },
+    { "id": 184, "category": "general", "rarity": "Legendary", "text": "A spectral guardian shields your group for 1 minute; as a reaction (once per round), it imposes disadvantage on one attack against you or an ally within 10 feet." },
+    { "id": 185, "category": "general", "rarity": "Legendary", "text": "You gain a 60-foot flying speed for 1 minute." }
   ],
   "legendaryIds": [96,97,98,99,100,181,182,183,184,185]
 }
