@@ -52,6 +52,25 @@ export default function WildMagicClient(){
     setTimeout(()=>setFlash(false), 700)
   }
 
+  const [sendStatus, setSendStatus] = useState<string | null>(null)
+  async function sendToDiscord(){
+    if (!result) return
+    setSendStatus('sending')
+    try{
+      const res = await fetch('/api/wild-magic/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: index })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'unknown error')
+      setSendStatus('sent')
+      setTimeout(()=>setSendStatus(null), 2000)
+    } catch (err:any){
+      setSendStatus('error: ' + (err?.message || String(err)))
+    }
+  }
+
   function spawnConfetti(){
     const container = document.getElementById('confetti-root')
     if (!container) return
@@ -89,6 +108,8 @@ export default function WildMagicClient(){
                 </div>
                 <div className="mt-2">
                   <button className="btn copy-btn" onClick={copyResult}>Copy</button>
+                  <button className="btn ml-2" onClick={sendToDiscord} disabled={!index}>Send to Discord</button>
+                  {sendStatus && <span className="ml-2 text-sm text-gray-600">{sendStatus}</span>}
                 </div>
           </div>
         ) : (
