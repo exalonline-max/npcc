@@ -17,6 +17,9 @@ export default function AuthNav() {
       <Link href="/" className="btn-ghost" style={{ fontWeight: 600 }}>
         Home
       </Link>
+      <Link href="/tools/wild-magic" className="btn-ghost" style={{ fontWeight: 600 }}>
+        Wild Magic
+      </Link>
 
       <SignedIn>
         <UserButton afterSignOutUrl="/" />

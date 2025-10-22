@@ -35,6 +35,12 @@ export default function ToolsPage() {
           href="/tools/character"
           emoji="👤"
         />
+        <ToolCard
+          title="Wild Magic Table"
+          description="Roll for wild magic effects and browse the full table."
+          href="/tools/wild-magic"
+          emoji="✨"
+        />
       </div>
     </div>
   );
