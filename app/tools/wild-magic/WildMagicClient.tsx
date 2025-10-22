@@ -7,6 +7,7 @@ export default function WildMagicClient(){
   const [result, setResult] = useState<string | null>(null)
   const [index, setIndex] = useState<number | null>(null)
   const [effects, setEffects] = useState<any[] | null>(null)
+  const [legendaryIds, setLegendaryIds] = useState<number[] | null>(null)
   const [flash, setFlash] = useState(false)
   const [shake, setShake] = useState(false)
   const [showTable, setShowTable] = useState(false)
@@ -16,6 +17,7 @@ export default function WildMagicClient(){
     const res = await fetch('/api/wild-magic/effects')
     const data = await res.json()
     setEffects(data.effects)
+    setLegendaryIds(Array.isArray(data.legendaryIds) ? data.legendaryIds : null)
     return data.effects
   }
 
@@ -71,6 +73,24 @@ export default function WildMagicClient(){
     }
   }
 
+  function getRarity(id?: number | null){
+    if (!id) return 'Common'
+    if (legendaryIds && legendaryIds.includes(id)) return 'Legendary'
+    // simple heuristic based on id ranges: most are Common
+    if (id >= 271 && id <= 290) return 'Rare'
+    if (id >= 241 && id <= 270) return 'Uncommon'
+    return 'Common'
+  }
+
+  function rarityColor(r: string){
+    switch(r){
+      case 'Legendary': return '#D4AF37'
+      case 'Rare': return '#6D28D9'
+      case 'Uncommon': return '#059669'
+      default: return '#374151'
+    }
+  }
+
   function spawnConfetti(){
     const container = document.getElementById('confetti-root')
     if (!container) return
@@ -102,10 +122,23 @@ export default function WildMagicClient(){
         <div id="confetti-root" className="confetti-container" style={{position:'relative', height:0}} />
         {result ? (
           <div>
-            <div className="text-sm text-gray-500">Effect #{index}</div>
-            <div className={"mt-2 wild-effect" + (flash ? ' flash' : '')}>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <div style={{display:'flex',flexDirection:'column'}}>
+                <div className="text-sm text-gray-500">Effect #{index}</div>
+                <div className={"mt-2 wild-effect" + (flash ? ' flash' : '')} style={{fontSize:18,lineHeight:1.3}}>
                   {flash ? <span className="reveal">{result}</span> : result}
                 </div>
+              </div>
+              <div style={{marginLeft:'auto',display:'flex',flexDirection:'column',alignItems:'flex-end'}}>
+                <div style={{padding:'6px 10px',borderRadius:999,background:`linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))`,boxShadow:`0 6px 18px ${rarityColor(getRarity(index))}33`,display:'flex',alignItems:'center',gap:8}}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" fill={rarityColor(getRarity(index))} /></svg>
+                  <span style={{fontSize:12,fontWeight:600,color:rarityColor(getRarity(index))}}>{getRarity(index)}</span>
+                </div>
+                <div style={{marginTop:8}}>
+                  <small className="text-xs text-gray-500">Rarity influences game impact</small>
+                </div>
+              </div>
+            </div>
                 <div className="mt-2">
                   <button className="btn copy-btn" onClick={copyResult}>Copy</button>
                   <button className="btn ml-2" onClick={sendToDiscord} disabled={!index}>Send to Discord</button>
