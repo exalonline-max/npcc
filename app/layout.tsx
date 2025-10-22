@@ -11,6 +11,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap" rel="stylesheet" />
+      </head>
       <body>
         <ClerkProvider publishableKey={publishableKey}>
           <header style={{borderBottom: '1px solid var(--border)'}}>

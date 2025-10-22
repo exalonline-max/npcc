@@ -39,3 +39,73 @@ input,button{font:inherit}
 .form-row label{display:block;color:var(--muted);font-size:13px}
 .form-row input{width:100%;padding:8px;border:1px solid var(--border);border-radius:6px}
 
+/* Wild Magic display */
+.wild-effect{
+	font-family: 'Fredericka the Great', Georgia, serif;
+	font-size:42px;
+	line-height:1.05;
+	color:#3b2f2f;
+	text-shadow: 0 6px 14px rgba(59,47,47,0.15), 0 2px 6px rgba(0,0,0,0.06);
+	padding:18px;
+	border-radius:12px;
+	background: linear-gradient(180deg, rgba(255,250,240,0.9), rgba(255,245,230,0.95));
+	border:1px solid rgba(0,0,0,0.05);
+	display:inline-block;
+	transform-origin:center;
+}
+
+@keyframes popIn{
+	from{transform: scale(.92) rotate(-2deg); opacity:0}
+	to{transform: scale(1) rotate(0); opacity:1}
+}
+
+.wild-sub{font-family: Inter, system-ui, sans-serif; color:var(--muted); font-size:14px; margin-top:6px}
+
+/* Flash pulse for reveal */
+.flash{animation: flashPulse 900ms ease;}
+@keyframes flashPulse{
+	0%{filter: drop-shadow(0 0 0 rgba(255,215,0,0)); transform:scale(0.98)}
+	30%{filter: drop-shadow(0 10px 30px rgba(255,215,0,0.15)); transform:scale(1.02)}
+	100%{filter: drop-shadow(0 6px 14px rgba(59,47,47,0.15)); transform:scale(1)}
+}
+
+/* Left-to-right reveal for the big text */
+.reveal{
+	display:inline-block;
+	background: linear-gradient(90deg, #3b2f2f 0%, #3b2f2f 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	background-size: 0% 100%;
+	animation: revealLR 1100ms ease forwards;
+}
+@keyframes revealLR{
+	from { background-size: 0% 100%; }
+	to { background-size: 100% 100%; }
+}
+
+/* Confetti simple particles */
+.confetti-container{position:relative;overflow:visible}
+.confetti-particle{
+	position:absolute; width:10px; height:10px; border-radius:2px; opacity:0.95; pointer-events:none; will-change:transform,opacity
+	}
+@keyframes confetti-fall{
+	0%{ transform: translateY(0) rotate(0deg); opacity:1 }
+	100%{ transform: translateY(160px) rotate(360deg); opacity:0 }
+}
+
+/* Screen shake */
+.shake{
+	animation: shake 420ms cubic-bezier(.2,.8,.2,1);
+}
+@keyframes shake{
+	0%{ transform: translateX(0) }
+	20%{ transform: translateX(-6px) }
+	40%{ transform: translateX(6px) }
+	60%{ transform: translateX(-3px) }
+	80%{ transform: translateX(3px) }
+	100%{ transform: translateX(0) }
+}
+
+.copy-btn{font-size:13px;padding:6px 8px;border-radius:6px}
+
