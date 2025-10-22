@@ -169,6 +169,16 @@ export default function WildMagicClient(){
     }
   }
 
+  // normalize categories: some effects were labeled "general" in the JSON
+  // treat "general" as combat so old entries still appear in the Combat table
+  function normalizeCategory(e:any){
+    const c = (e && e.category) ? String(e.category).toLowerCase() : ''
+    if (c === 'general') return 'combat'
+    if (c === 'combat') return 'combat'
+    if (c === 'narrative') return 'narrative'
+    return c
+  }
+
   return (
   <div className={"space-y-4" + (shake ? ' shake' : '')}>
       <div className="flex items-center" style={{gap:12,marginBottom:12}}>
@@ -252,7 +262,7 @@ export default function WildMagicClient(){
                           </tr>
                         </thead>
                         <tbody>
-                          {effects.filter((e:any)=>e.category === 'narrative').map((e:any)=> (
+                          {effects.filter((e:any)=>normalizeCategory(e) === 'narrative').map((e:any)=> (
                             <tr key={e.id} className={index === e.id ? 'bg-yellow-50' : ''}>
                               <td style={{padding:10,verticalAlign:'top',whiteSpace:'nowrap'}}><strong>#{e.id}</strong></td>
                               <td style={{padding:10,verticalAlign:'top'}}>{e.text}</td>
@@ -283,7 +293,7 @@ export default function WildMagicClient(){
                           </tr>
                         </thead>
                         <tbody>
-                          {effects.filter((e:any)=>e.category === 'combat').map((e:any)=> (
+                          {effects.filter((e:any)=>normalizeCategory(e) === 'combat').map((e:any)=> (
                             <tr key={e.id} className={index === e.id ? 'bg-yellow-50' : ''}>
                               <td style={{padding:10,verticalAlign:'top',whiteSpace:'nowrap'}}><strong>#{e.id}</strong></td>
                               <td style={{padding:10,verticalAlign:'top'}}>{e.text}</td>
