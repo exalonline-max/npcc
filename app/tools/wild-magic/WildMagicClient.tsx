@@ -64,11 +64,11 @@ export default function WildMagicClient(){
   async function rollCombat(){
     const list = await loadEffects()
     if (!list || list.length === 0) return
-    // filter out conditional effects and prefer those that look combat-related
-    const candidates = list.filter((e:any)=> !containsCondition(e.text) && isCombatEffect(e.text))
+    // filter by category, filter out conditional effects, and prefer those that look combat-related
+    const candidates = list.filter((e:any)=> normalizeCategory(e) === 'combat' && !containsCondition(e.text) && isCombatEffect(e.text))
     if (candidates.length === 0){
-      // fallback: any non-conditional effect
-      const fallback = list.filter((e:any)=> !containsCondition(e.text))
+      // fallback: any non-conditional effect in the combat category
+      const fallback = list.filter((e:any)=> normalizeCategory(e) === 'combat' && !containsCondition(e.text))
       await pickAndReveal(fallback.length ? fallback : list)
       return
     }
@@ -78,10 +78,10 @@ export default function WildMagicClient(){
   async function rollNarrative(){
     const list = await loadEffects()
     if (!list || list.length === 0) return
-    // narrative = non-combat effects and non-conditional
-    const candidates = list.filter((e:any)=> !containsCondition(e.text) && !isCombatEffect(e.text))
+    // narrative = category narrative, non-conditional, and not combat-related
+    const candidates = list.filter((e:any)=> normalizeCategory(e) === 'narrative' && !containsCondition(e.text) && !isCombatEffect(e.text))
     if (candidates.length === 0){
-      const fallback = list.filter((e:any)=> !containsCondition(e.text))
+      const fallback = list.filter((e:any)=> normalizeCategory(e) === 'narrative' && !containsCondition(e.text))
       await pickAndReveal(fallback.length ? fallback : list)
       return
     }
