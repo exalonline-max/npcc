@@ -1,0 +1,16 @@
+services:
+  - name: npcc-web
+    type: web
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISCORD_WILDMAGIC_WEBHOOK
+        # leave empty; set this in Render dashboard
+        value: ""
+      - key: DATABASE_URL
+        value: ""
+    healthCheckPath: /api/_health || /api/wild-magic/effects

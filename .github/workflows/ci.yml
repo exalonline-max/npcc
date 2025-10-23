@@ -15,6 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate effects.json
+        run: |
+          node -e "const fs=require('fs');const p='lib/wild-magic/effects.json';const text=fs.readFileSync(p,'utf8');const data=JSON.parse(text);if(!Array.isArray(data.effects))throw new Error('effects must be an array');const allowed=['narrative','combat','general'];const bad=data.effects.filter(e=>!e.id||!e.text||!allowed.includes(String(e.category)));if(bad.length) { console.error('Bad entries:', bad.slice(0,5)); process.exit(2) } console.log('effects.json looks good')"
+
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
