@@ -73,17 +73,21 @@ const EFFECTS = {
   weapon: {
     Common: [
       'Counts as magical for overcoming resistance',
+      'Balanced edge: grants a small steady bonus when used two-handed',
+      'Comfort grip: grants +1 to recovery checks after combat',
       'Once per short rest, add +1d4 damage to one hit',
       'You can draw/stow this weapon as part of the attack',
     ],
     Uncommon: [
       '+1 bonus to attack and damage rolls',
+      'Well-balanced haft: easier to maintain, reducing failure on repairs',
       'Returning (thrown): the weapon flies back to your hand',
       'When you roll a 1 on damage, reroll it once',
       'Advantage on checks to avoid being disarmed',
     ],
     Rare: [
       '+2 bonus to attack and damage rolls',
+      'Serrated plan: on a critical, target bleeds for 1d4 until healed',
       'Elemental Brand: while activated (bonus action), add +1d6 fire/cold/lightning to hits (10 min, 1/short rest)',
       'Undead Bane: +1d8 radiant vs undead and emits bright light 15 ft',
       'Vicious: on a critical hit, deal +2d6 damage',
@@ -91,6 +95,7 @@ const EFFECTS = {
     ],
     'Very Rare': [
       '+3 bonus to attack and damage rolls',
+      'Phase Edge: once per short rest, ignore 5 points of armor on a hit',
       'Flame Tongue-like: speak command word to ignite (+2d6 fire); sheds bright light 40 ft',
       'Keen Edge: scores a critical hit on a 19–20',
       'Oathbound: once per short rest, mark a creature; first hit each turn adds +1d8 damage',
@@ -98,6 +103,7 @@ const EFFECTS = {
     ],
     Legendary: [
       '+3 bonus; attacks ignore nonmagical resistance',
+      'Warden of Storms: occasionally crackles with thunder, granting thunderous bonus on hit',
       'Sunblade-like: weapon deals radiant damage; +2d8 vs undead; daylight 30 ft',
       'Vorpal-like edge: on a 20, deal +6d8 damage (DM adjudicates severe wound)',
       'Recall: as a bonus action, the weapon teleports to your hand from up to 1 mile (same plane)',
@@ -107,26 +113,31 @@ const EFFECTS = {
   armor: {
     Common: [
       'Counts as magical',
+      'Light padding: reduces chafing and grants comfort in long marches',
       'Reduce fall damage by 1d6',
       'Advantage on saves to resist being shoved or knocked prone',
     ],
     Uncommon: [
       '+1 bonus to AC (armor or shield)',
+      'Quick-strap: donning or doffing the armor takes half the usual time',
       'Advantage on one type of save (choose STR/DEX/CON) vs environmental hazards',
       'Silent Straps: advantage on Stealth checks to avoid armor noise',
     ],
     Rare: [
       '+2 bonus to AC (armor or shield)',
+      'Reactive plating: once per short rest, reduce a hit by 1d8',
       'Resistance to one damage type (choose fire, cold, lightning, necrotic, radiant)',
       'Guardian: once per short rest, impose disadvantage on an attack vs an ally within 5 ft',
     ],
     'Very Rare': [
       '+3 bonus to AC (armor or shield)',
+      'Spellbound weave: while worn, grants +1 to spellcasting concentration checks',
       'Magic Ward (3 charges): reaction to add +4 to a saving throw; regains 1d3 charges at dawn',
       'You can breathe underwater and gain a swim speed equal to your speed',
     ],
     Legendary: [
       '+3 AC; critical hits against you become normal hits',
+      'Aegis of Ages: once per long rest, reflect a single spell back at its caster',
       'Bulwark: allies within 10 ft gain +1 to AC and saving throws while you are conscious',
       'Once per long rest, cast globe of invulnerability centered on you (1 minute)',
     ],
@@ -134,26 +145,31 @@ const EFFECTS = {
   trinket: {
     Common: [
       'Tool boon: +2 bonus to checks with one artisan tool',
+      'Pocket charm: small hidden compartment holds trivial items without adding weight',
       'Once per long rest, cast guidance on yourself (no concentration for 1 minute)',
       'You always know which way is north and the time until sunrise/sunset',
     ],
     Uncommon: [
       'Cloak/Ring-like: +1 to AC and saving throws (does not stack with itself)',
+      'Minor ward: grants +1 to a chosen skill while attuned',
       'Spellcasting focus: +1 to spell attack rolls',
       'Feather Fall charm (1 charge/day)',
     ],
     Rare: [
       'Amulet of Health-lite: your CON increases by +2 (max 20) while attuned',
+      'Boots-like: brief feather-step ability once per short rest',
       'Boots-like: gain 10 ft bonus to movement',
       'Wand-like (5 charges): cast a 2nd-level spell tied to theme; regains 1d4+1 charges at dawn',
     ],
     'Very Rare': [
       'Resistance (permanent) to one damage type of the item’s theme',
+      'Ethereal echo: once per long rest, phase briefly into ethereal plane (1 round)',
       'Once per short rest, bonus action: become invisible until end of your next turn',
       'Spell DC +1 while attuned',
     ],
     Legendary: [
       'Once per long rest, cast a 6th-level spell tied to theme',
+      'World-Touched: item grants a faint teleportation tether to a chosen location once per week',
       'Fate Thread: when you fail a save, turn it into a success 1/long rest',
       'You can’t be surprised while conscious',
     ],
@@ -224,19 +240,14 @@ export default function MagicItemClient(){
   const [armorType, setArmorType] = React.useState<string>(ARMOR_TYPES[0])
   const [rarity, setRarity] = React.useState<string>('Common')
   const [theme, setTheme] = React.useState<string>('Martial')
-  const [weird, setWeird] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<any| null>(null)
-  const [effects, setEffects] = React.useState<any[] | null>(null)
   const [copied, setCopied] = React.useState<boolean>(false)
   const [aiLoading, setAiLoading] = React.useState<boolean>(false)
   const [aiSummary, setAiSummary] = React.useState<string | null>(null)
   const [aiBullets, setAiBullets] = React.useState<string[] | null>(null)
   const [aiError, setAiError] = React.useState<string | null>(null)
 
-  React.useEffect(()=>{
-    // load wild-magic effects for "weird" add-ons
-    fetch('/api/wild-magic/effects').then(r=>r.json()).then(d=>{ if (d?.effects) setEffects(d.effects) }).catch(()=>{})
-  },[])
+  // no wild-magic loading — "Make it weird" is temporarily removed
 
 function makeName(thing:string){
   return dndName(thing)
@@ -276,25 +287,14 @@ function makeName(thing:string){
     return base
   }
 
-  function attachWeird(base:any){
-    if (!effects || effects.length === 0) return base
-    // pick 1-2 weird effects, small chance for more
-    const count = Math.random() < 0.6 ? 1 : 2
-    const picks = []
-    for (let i=0;i<count;i++){
-      const e = effects[Math.floor(Math.random()*effects.length)]
-      picks.push(`#${e.id}: ${e.text}`)
-    }
-    base.affixes.push(`Weird: ${picks.join(' / ')}`)
-    return base
-  }
+  // removed weird attachments for now
 
   function onGenerate(){
     let thing = 'Trinket'
     if (category === 'weapon') thing = weaponType
     if (category === 'armor') thing = armorType
     const base = generateStats(thing)
-    if (weird) attachWeird(base)
+  // previously could attach "weird" effects; currently disabled
     // set a quick immediate preview while we ask the AI to polish
     setResult(base)
     // call AI to polish, auto-apply bullets and paragraph into the item
@@ -372,8 +372,10 @@ function makeName(thing:string){
     <div className="p-6 bg-gray-50 rounded-lg space-y-6">
       <h2 className="text-2xl font-bold">Magic Item Generator</h2>
       <p className="text-sm text-gray-600">Choose options below and forge a D&amp;D‑style magic item.</p>
-      <div className="grid grid-cols-1 gap-6">
-        <div>
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="md:col-span-1">
+          <div className="grid grid-cols-1 gap-6">
+            <div>
           <label className="block text-sm font-semibold mb-2">Category</label>
           <OptionGrid
             options={[
@@ -452,8 +454,7 @@ function makeName(thing:string){
                   setTheme(rand(THEMES))
                   setWeaponType(rand(WEAPON_TYPES))
                   setArmorType(rand(ARMOR_TYPES))
-                  // small chance to enable weird
-                  setWeird(Math.random() < 0.35)
+                  // small chance to enable weird (disabled)
                 }}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-100 hover:bg-amber-200 border"
                 title="Randomize options"
@@ -462,23 +463,7 @@ function makeName(thing:string){
               </button>
             </div>
 
-            {/* Accessible switch: clicking anywhere toggles */}
-            <div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={weird}
-                onClick={()=>setWeird(!weird)}
-                onKeyDown={(e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setWeird(!weird) } }}
-                className={`flex items-center gap-3 px-3 py-1.5 rounded-md border shadow-sm ${weird ? 'bg-purple-600 text-white' : 'bg-white'}`}
-                title="Toggle weird effects"
-              >
-                <span className="text-sm font-medium">Make it weird</span>
-                <span className={`relative inline-block w-10 h-6 rounded-full transition-all ${weird ? 'bg-purple-400' : 'bg-gray-300'}`}>
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform transition ${weird ? 'translate-x-4' : 'translate-x-0'}`}></span>
-                </span>
-              </button>
-            </div>
+            {/* "Make it weird" toggle removed temporarily */}
 
             <div className="ml-auto">
               <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
@@ -487,71 +472,75 @@ function makeName(thing:string){
               </Button>
             </div>
           </div>
-
-      </div>
-
-      {result && (
-        <div className="mt-4">
-          <div className="relative rounded-lg p-6 shadow-lg border-2" style={{backgroundImage: 'linear-gradient(180deg, #fff8ef, #fff3e6)'}}>
-            <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.08)'}}></div>
-
-            {/* Decorative header */}
-            <div className="flex items-start gap-4 mb-3">
-              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl shadow-sm">🔱</div>
-              <div className="flex-1">
-                <h3 className="text-3xl font-serif font-bold leading-tight">{result.name}</h3>
-                {/* small italic type/rarity line like the handbook */}
-                <div className="mt-1 text-sm italic text-gray-700">{
-                  // show a concise type line: "Wondrous item, uncommon" for trinkets or "Weapon (Dagger), rare"
-                  ((): string => {
-                    if (result.description?.startsWith('Wondrous')) return `Wondrous item, ${result.rarity.toLowerCase()}`
-                    if (result.description?.includes('—')) return `${result.rarity.toLowerCase()} ${result.description.split('—')[0].trim()}`
-                    return `${result.rarity.toLowerCase()}`
-                  })()
-                }</div>
-
-                {/* main descriptive paragraph styled like the handbook */}
-                <div className="mt-3 prose-sm text-gray-800">{result.description}</div>
               </div>
             </div>
 
-            <div className="mt-2 pl-3 border-l-2 border-amber-200">
-              <ul className="list-disc pl-5 space-y-1">
-                {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm leading-snug">{a}</li> )}
-              </ul>
-            </div>
+            <div className="md:col-span-2">
+            {result && (
+              <div className="mt-4">
+                <div className="relative rounded-lg p-6 shadow-lg border-2" style={{backgroundImage: 'linear-gradient(180deg, #fff8ef, #fff3e6)'}}>
+                  <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.08)'}}></div>
 
-            {/* Flavor text, italic and slightly separated like a lore paragraph */}
-            {result.flavor && (
-              <div className="mt-5 text-sm text-gray-700 italic">{result.flavor}</div>
-            )}
+                  {/* Decorative header */}
+                  <div className="flex items-start gap-4 mb-3">
+                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl shadow-sm">🔱</div>
+                    <div className="flex-1">
+                      <h3 className="text-3xl font-serif font-bold leading-tight">{result.name}</h3>
+                      {/* small italic type/rarity line like the handbook */}
+                      <div className="mt-1 text-sm italic text-gray-700">{
+                        ((): string => {
+                          if (result.description?.startsWith('Wondrous')) return `Wondrous item, ${result.rarity.toLowerCase()}`
+                          if (result.description?.includes('—')) return `${result.rarity.toLowerCase()} ${result.description.split('—')[0].trim()}`
+                          return `${result.rarity.toLowerCase()}`
+                        })()
+                      }</div>
 
-            {/* Bottom actions row */}
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <div className="text-xs text-gray-600">{result.attunement ? 'Requires attunement' : 'No attunement required'}</div>
-              <div className="flex items-center gap-2">
-                <Button variant="secondary" onClick={enhanceWithAI} disabled={aiLoading || !result}>
-                  {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
-                </Button>
-                <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
-              </div>
-            </div>
+                      {/* main descriptive paragraph styled like the handbook */}
+                      <div className="mt-3 prose-sm text-gray-800">{result.description}</div>
+                    </div>
+                  </div>
 
-            {/* AI output */}
-            {aiError && <div className="mt-4 text-sm text-red-600">AI error: {aiError}</div>}
-            {aiSummary && (
-              <div className="mt-4 p-4 bg-white border rounded-md shadow-sm">
-                <div className="prose-sm"><div dangerouslySetInnerHTML={{ __html: aiSummary.replace(/\n/g, '<br/>') }} /></div>
-                {aiBullets && aiBullets.length > 0 && (
-                  <ul className="mt-2 list-disc pl-5">
-                    {aiBullets.map((b,i)=>(<li key={i} className="text-sm">{b}</li>))}
-                  </ul>
-                )}
+                  <div className="mt-2 pl-3 border-l-2 border-amber-200">
+                    <ul className="list-disc pl-5 space-y-1">
+                      {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm leading-snug">{a}</li> )}
+                    </ul>
+                  </div>
+
+                  {/* Flavor text, italic and slightly separated like a lore paragraph */}
+                  {result.flavor && (
+                    <div className="mt-5 text-sm text-gray-700 italic">{result.flavor}</div>
+                  )}
+
+                  {/* Bottom actions row */}
+                  <div className="mt-4 flex items-center justify-between gap-4">
+                    <div className="text-xs text-gray-600">{result.attunement ? 'Requires attunement' : 'No attunement required'}</div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="secondary" onClick={enhanceWithAI} disabled={aiLoading || !result}>
+                        {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
+                      </Button>
+                      <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
+
+            {/* AI output panel — separate block to style independently */}
+            <div className="mt-4">
+              {aiError && <div className="text-sm text-red-600">AI error: {aiError}</div>}
+              {aiSummary && (
+                <div className="p-4 bg-white border rounded-md shadow-sm">
+                  <div className="prose-sm"><div dangerouslySetInnerHTML={{ __html: aiSummary.replace(/\n/g, '<br/>') }} /></div>
+                  {aiBullets && aiBullets.length > 0 && (
+                    <ul className="mt-2 list-disc pl-5">
+                      {aiBullets.map((b,i)=>(<li key={i} className="text-sm">{b}</li>))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      )}
     </div>
   )
 }
