@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic'
 import React from 'react'
 
-const MagicItemClient = dynamic(() => import('./MagicItemClient'), { ssr: false })
+const MagicItemClient = dynamic(() => import('./index'), { ssr: false })
 
 export default function Page(){
   return (

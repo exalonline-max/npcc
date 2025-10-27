@@ -222,7 +222,7 @@ function makeName(thing:string){
     })()
 
     const attune = ATTUNE_BY_RARITY[rarity] ?? false
-    const base:any = { name: makeName(thing), rarity, theme, attunement: attune, description: '', affixes: [] as string[] }
+  const base:any = { name: makeName(thing), rarity, theme, attunement: attune, description: '', affixes: [] as string[], flavor: '' }
 
     if (bucket === 'weapon'){
       const dmg = WEAPON_DAMAGE[thing] ?? '—'
@@ -242,7 +242,8 @@ function makeName(thing:string){
     }
 
     if (attune) base.affixes.unshift('Requires attunement')
-    base.affixes.push(rand(THEME_FLAVOR[theme] ?? ['']))
+    // Set a dedicated flavor line (short italic text) instead of burying it in affixes
+    base.flavor = rand(THEME_FLAVOR[theme] ?? [''])
     return base
   }
 
@@ -380,28 +381,46 @@ function makeName(thing:string){
 
       {result && (
         <div className="mt-4">
-          <div className="relative bg-amber-50 border-2 border-brown-400 rounded-lg p-6 shadow-lg" style={{backgroundImage: 'linear-gradient(180deg, rgba(255,250,240,0.9), rgba(255,245,230,0.8))'}}>
-            <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.12)'}}></div>
-            <div className="flex items-start justify-between">
+          <div className="relative rounded-lg p-6 shadow-lg border-2" style={{backgroundImage: 'linear-gradient(180deg, #fff8ef, #fff3e6)'}}>
+            <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.08)'}}></div>
+
+            {/* Decorative header */}
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-2xl shadow-sm">🔱</div>
               <div>
-                <h3 className="text-xl font-bold flex items-center gap-3">
-                  {result.name}
-                  <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
+                <h3 className="text-2xl font-serif font-bold leading-tight">{result.name}</h3>
+                {/* Rarity on its own line */}
+                <div className="mt-1">
+                  <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full tracking-wide shadow-inner ${
                     result.rarity === 'Legendary' ? 'bg-yellow-400 text-black' :
                     result.rarity === 'Very Rare' ? 'bg-fuchsia-500 text-white' :
                     result.rarity === 'Rare' ? 'bg-indigo-500 text-white' :
                     result.rarity === 'Uncommon' ? 'bg-green-400 text-black' : 'bg-gray-200 text-black'
                   }`}>{result.rarity}</span>
-                </h3>
-                <div className="mt-2 text-sm text-gray-700 italic">{result.description}</div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+            </div>
+
+            <div className="mb-3 text-sm text-gray-700">{result.description}</div>
+
+            <div className="mt-2">
+              <ul className="list-disc pl-6 space-y-1">
+                {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
+              </ul>
+            </div>
+
+            {/* Flavor text, italic and slightly separated */}
+            {result.flavor && (
+              <div className="mt-4 text-sm text-gray-600 italic border-t pt-3">{result.flavor}</div>
+            )}
+
+            {/* Bottom actions row */}
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-xs text-gray-600">{result.attunement ? 'Requires attunement' : 'No attunement required'}</div>
+              <div>
                 <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
               </div>
             </div>
-            <ul className="mt-4 list-disc pl-6 space-y-1">
-              {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
-            </ul>
           </div>
         </div>
       )}
