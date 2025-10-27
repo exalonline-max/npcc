@@ -41,6 +41,12 @@ export default function ToolsPage() {
           href="/tools/wild-magic"
           emoji="✨"
         />
+        <ToolCard
+          title="Magic Item Generator"
+          description="Quickly generate Diablo‑2 inspired magic items with rarity, theme, and a weird toggle."
+          href="/tools/magic-item"
+          emoji="🪄"
+        />
       </div>
     </div>
   );

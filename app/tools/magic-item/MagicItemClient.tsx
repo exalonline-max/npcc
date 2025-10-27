@@ -1,0 +1,174 @@
+"use client"
+
+import React from 'react'
+import Button from '../../../components/ui/button'
+
+const WEAPON_TYPES = ['Sword','Axe','Dagger','Mace','Bow','Spear','Staff']
+const ARMOR_TYPES = ['Light Armor','Medium Armor','Heavy Armor','Shield']
+const THEMES = ['Martial','Support','Roleplay']
+const RARITIES = ['Common','Uncommon','Rare','Legendary']
+
+function rand<T>(arr:T[]){ return arr[Math.floor(Math.random()*arr.length)] }
+function roll(min:number,max:number){ return Math.floor(Math.random()*(max-min+1))+min }
+
+export default function MagicItemClient(){
+  const [category, setCategory] = React.useState<'weapon'|'armor'|'other'>('weapon')
+  const [weaponType, setWeaponType] = React.useState<string>(WEAPON_TYPES[0])
+  const [armorType, setArmorType] = React.useState<string>(ARMOR_TYPES[0])
+  const [rarity, setRarity] = React.useState<string>('Common')
+  const [theme, setTheme] = React.useState<string>('Martial')
+  const [weird, setWeird] = React.useState<boolean>(false)
+  const [result, setResult] = React.useState<any| null>(null)
+  const [effects, setEffects] = React.useState<any[] | null>(null)
+
+  React.useEffect(()=>{
+    // load wild-magic effects for "weird" add-ons
+    fetch('/api/wild-magic/effects').then(r=>r.json()).then(d=>{ if (d?.effects) setEffects(d.effects) }).catch(()=>{})
+  },[])
+
+  function makeName(thing:string){
+    const prefixes = ['Burning','Frozen','Vicious','Hallowed','Stormforged','Gloom','Radiant','Wicked','Luminous','Dire','Ebon']
+    const suffixes = ['Slaying','Fortune','the Bear','the Phoenix','Vitality','Shadows','the Voyager','Precision','Whispers','the Infinite']
+    const people = ['Gunnar','Elara','Mord','Syl','Thistle','Grimm']
+    const pattern = Math.random()
+    if (pattern < 0.6) return `${rand(prefixes)} ${thing} of ${rand(suffixes)}`
+    if (pattern < 0.9) return `${people[Math.floor(Math.random()*people.length)]}'s ${thing} of ${rand(suffixes)}`
+    return `${rand(prefixes)} ${thing}`
+  }
+
+  function generateStats(thing:string){
+    const base:any = { name: makeName(thing), rarity, theme, description: '', affixes: [] }
+    // base stat pools inspired by Diablo-style affixes
+    if (category === 'weapon'){
+      const dmg = {
+        Common: `${roll(3,6)}-${roll(6,12)}`,
+        Uncommon: `${roll(6,10)}-${roll(10,16)}`,
+        Rare: `${roll(10,16)}-${roll(16,28)}`,
+        Legendary: `${roll(18,30)}-${roll(30,60)}`,
+      }[rarity]
+      base.description = `${thing} — damage ${dmg}`
+      if (theme === 'Martial') base.affixes.push(`+${roll(1,3)} to Attack`) 
+      if (theme === 'Support') base.affixes.push(`+${roll(1,4)} to Ally Damage`) 
+      if (theme === 'Roleplay') base.affixes.push(`+${roll(1,4)} to Charisma checks (flavor)`) 
+      if (rarity === 'Uncommon') base.affixes.push(`${roll(1,6)}% chance to pierce`) 
+      if (rarity === 'Rare') base.affixes.push(`+${roll(1,6)} to all attacks`) 
+      if (rarity === 'Legendary') base.affixes.push(`Grants one unique active ability (DM adjudicates)`) 
+    } else if (category === 'armor'){
+      const acMap = {
+        'Light Armor': {Common: 11, Uncommon:12, Rare:13, Legendary:14},
+        'Medium Armor': {Common:12, Uncommon:13, Rare:14, Legendary:15},
+        'Heavy Armor': {Common:14, Uncommon:15, Rare:16, Legendary:18},
+        'Shield': {Common:2, Uncommon:3, Rare:4, Legendary:5}
+      }[armorType] || { Common: 10, Uncommon:11, Rare:12, Legendary:13 }
+      const acVal = (acMap as any)[rarity] ?? acMap.Common
+      base.description = `${armorType} — base protection ${acVal}`
+      if (theme === 'Martial') base.affixes.push(`+${roll(1,3)} to Strength (flavor)`) 
+      if (theme === 'Support') base.affixes.push(`+${roll(1,6)} to Healing received`) 
+      if (theme === 'Roleplay') base.affixes.push(`Gives minor illusion when worn`) 
+      if (rarity === 'Rare') base.affixes.push(`+${roll(1,2)} to saving throws`) 
+      if (rarity === 'Legendary') base.affixes.push(`Reduces damage from one source by half once per short rest`) 
+    } else {
+      // other trinkets / rings / amulets
+      base.description = `Trinket — minor boon`
+      base.affixes.push(`+${roll(1,4)} to a skill of your choice`)
+      if (rarity === 'Rare') base.affixes.push(`+${roll(1,4)} to all skills`) 
+      if (rarity === 'Legendary') base.affixes.push(`Unique effect: reshapes small fate`) 
+    }
+
+    // small rarity flavor
+    if (rarity === 'Uncommon') base.affixes.push('Has a subtle glow')
+    if (rarity === 'Rare') base.affixes.push('Has an unusual rune carved into it')
+    if (rarity === 'Legendary') base.affixes.push('Legendary — storied in song')
+
+    // weight the number of affixes by rarity
+    return base
+  }
+
+  function attachWeird(base:any){
+    if (!effects || effects.length === 0) return base
+    // pick 1-2 weird effects, small chance for more
+    const count = Math.random() < 0.6 ? 1 : 2
+    const picks = []
+    for (let i=0;i<count;i++){
+      const e = effects[Math.floor(Math.random()*effects.length)]
+      picks.push(`#${e.id}: ${e.text}`)
+    }
+    base.affixes.push(`Weird: ${picks.join(' / ')}`)
+    return base
+  }
+
+  function onGenerate(){
+    let thing = 'Trinket'
+    if (category === 'weapon') thing = weaponType
+    if (category === 'armor') thing = armorType
+    const base = generateStats(thing)
+    if (weird) attachWeird(base)
+    setResult(base)
+  }
+
+  return (
+    <div className="p-4 bg-white border rounded space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium">Category</label>
+          <select value={category} onChange={(e)=>setCategory(e.target.value as any)} className="mt-1 block w-full">
+            <option value="weapon">Weapon</option>
+            <option value="armor">Armor</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Rarity</label>
+          <select value={rarity} onChange={(e)=>setRarity(e.target.value)} className="mt-1 block w-full">
+            {RARITIES.map(r=> <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+
+        {category === 'weapon' && (
+          <div>
+            <label className="block text-sm font-medium">Weapon Type</label>
+            <select value={weaponType} onChange={(e)=>setWeaponType(e.target.value)} className="mt-1 block w-full">
+              {WEAPON_TYPES.map(w=> <option key={w} value={w}>{w}</option>)}
+            </select>
+          </div>
+        )}
+
+        {category === 'armor' && (
+          <div>
+            <label className="block text-sm font-medium">Armor Type</label>
+            <select value={armorType} onChange={(e)=>setArmorType(e.target.value)} className="mt-1 block w-full">
+              {ARMOR_TYPES.map(a=> <option key={a} value={a}>{a}</option>)}
+            </select>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium">Theme</label>
+          <select value={theme} onChange={(e)=>setTheme(e.target.value)} className="mt-1 block w-full">
+            {THEMES.map(t=> <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+
+        <div className="flex items-center">
+          <label className="mr-2 text-sm font-medium">Make it weird</label>
+          <input type="checkbox" checked={weird} onChange={(e)=>setWeird(e.target.checked)} />
+        </div>
+
+      </div>
+
+      <div className="flex items-center" style={{gap:12}}>
+        <Button variant="primary" onClick={onGenerate}>Generate</Button>
+      </div>
+
+      {result && (
+        <div className="mt-4 p-4 border rounded bg-gray-50">
+          <h3 className="text-lg font-semibold">{result.name}</h3>
+          <div className="text-sm text-gray-600 mt-1">{result.description}</div>
+          <ul className="mt-2 list-disc pl-5">
+            {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
