@@ -193,14 +193,20 @@ function OptionGrid({ options, value, onChange, columns=4 }:{ options:PickerOpti
 
         const selectedStyles = selected ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white border-amber-500' : 'bg-white/5 text-gray-200 border-gray-700'
 
+        const inlineStyle: React.CSSProperties = selected
+          ? { background: 'linear-gradient(90deg,#f6ad55,#d97706)', color: 'white' }
+          : { filter: 'grayscale(.15) opacity(.8)' }
+
         return (
           <button
             key={opt.value}
             type="button"
             aria-pressed={selected}
+            data-selected={selected ? 'true' : 'false'}
             title={opt.title || opt.label}
             onClick={()=>onChange(opt.value)}
             className={`group ${base} ${selectedStyles}`}
+            style={inlineStyle}
           >
             <span className="text-2xl leading-none select-none">{opt.icon ?? ''}</span>
             <span className="leading-tight select-none mt-1">{opt.label}</span>
