@@ -2,15 +2,195 @@
 
 import React from 'react'
 import Button from '../../../components/ui/button'
-import IconPicker from '../../../components/IconPicker'
 
-const WEAPON_TYPES = ['Sword','Axe','Bow','Staff','Wand']
+
+const WEAPON_TYPES = ['Sword','Axe','Dagger','Mace','Bow','Crossbow','Spear','Staff','Warhammer','Greatsword']
 const ARMOR_TYPES = ['Light Armor','Medium Armor','Heavy Armor','Shield']
-const THEMES = ['Martial','Arcane','Nature','Necrotic','Infernal']
-const RARITIES = ['Common','Uncommon','Rare','Legendary']
+const THEMES = ['Martial','Arcane','Divine','Primal','Shadow','Utility']
+const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary']
+
+// D&D-style lookup tables
+const WEAPON_DAMAGE: Record<string,string> = {
+  Sword: '1d8 slashing',
+  Axe: '1d8 slashing',
+  Dagger: '1d4 piercing (finesse, thrown 20/60)',
+  Mace: '1d6 bludgeoning',
+  Bow: '1d8 piercing (ammunition 150/600, two-handed)',
+  Crossbow: '1d8 piercing (ammunition 80/320, loading, two-handed)',
+  Spear: '1d6 piercing (thrown 20/60, versatile 1d8)',
+  Staff: '1d6 bludgeoning (versatile 1d8)',
+  Warhammer: '1d8 bludgeoning (versatile 1d10)',
+  Greatsword: '2d6 slashing (heavy, two-handed)'
+}
+
+const ARMOR_BASE: Record<string,string> = {
+  'Light Armor': '11 + Dex',
+  'Medium Armor': '14 + Dex (max 2)',
+  'Heavy Armor': '18 (Str 15, Stealth Disadv.)',
+  'Shield': '+2 AC (stacks with armor)'
+}
+
+const ATTUNE_BY_RARITY: Partial<Record<string, boolean>> = {
+  Uncommon: false,
+  Rare: true,
+  'Very Rare': true,
+  Legendary: true,
+}
+
+const NAME_PREFIX = [
+  'Runed','Dragonforged','Gloaming','Brightsteel','Stormbound','Oathkeeper',
+  'Wyrm-tooth','Starwrought','Grimwarden','Kindled','Moonlit','Sun-kissed'
+]
+const NAME_SUFFIX = [
+  'of Warding','of the North Wind','of Quiet Death','of the Phoenix',
+  'of the Dawn','of the Deep Wood','of Sacred Oaths','of Whispers',
+  'of the Silver Host','of the Undying Light'
+]
+const NAME_MAKERS = ['Eldrin','Vessa','Thorn','Durgan','Maelis','Ser Joric','Aerendel','Sable']
+
+const THEME_FLAVOR: Record<string,string[]> = {
+  Martial: ['Leather wraps smell faintly of oil and smoke','Etched with old campaign marks'],
+  Arcane: ['Hums softly with arcane resonance','Runes shift when read'],
+  Divine: ['Warm to the touch and faintly luminous','Bears a sigil of sacred vows'],
+  Primal: ['Bound with braided vine and tooth','Whispers of wind and beasts'],
+  Shadow: ['Edges drink the light','Cold haze trails in darkness'],
+  Utility: ['Fitted with clever catches and gears','Faint scent of ozone and ink'],
+}
+
+const EFFECTS = {
+  weapon: {
+    Common: [
+      'Counts as magical for overcoming resistance',
+      'Once per short rest, add +1d4 damage to one hit',
+      'You can draw/stow this weapon as part of the attack',
+    ],
+    Uncommon: [
+      '+1 bonus to attack and damage rolls',
+      'Returning (thrown): the weapon flies back to your hand',
+      'When you roll a 1 on damage, reroll it once',
+      'Advantage on checks to avoid being disarmed',
+    ],
+    Rare: [
+      '+2 bonus to attack and damage rolls',
+      'Elemental Brand: while activated (bonus action), add +1d6 fire/cold/lightning to hits (10 min, 1/short rest)',
+      'Undead Bane: +1d8 radiant vs undead and emits bright light 15 ft',
+      'Vicious: on a critical hit, deal +2d6 damage',
+      'Defender: as a bonus action, shift up to +2 of the bonus to AC until your next turn',
+    ],
+    'Very Rare': [
+      '+3 bonus to attack and damage rolls',
+      'Flame Tongue-like: speak command word to ignite (+2d6 fire); sheds bright light 40 ft',
+      'Keen Edge: scores a critical hit on a 19–20',
+      'Oathbound: once per short rest, mark a creature; first hit each turn adds +1d8 damage',
+      'Spell Storing (3 charges): cast dispel magic or blink; regains 1d3 charges at dawn',
+    ],
+    Legendary: [
+      '+3 bonus; attacks ignore nonmagical resistance',
+      'Sunblade-like: weapon deals radiant damage; +2d8 vs undead; daylight 30 ft',
+      'Vorpal-like edge: on a 20, deal +6d8 damage (DM adjudicates severe wound)',
+      'Recall: as a bonus action, the weapon teleports to your hand from up to 1 mile (same plane)',
+      'Once per long rest, cast steel wind strike (spell attack +10 / save DC 17 as appropriate)',
+    ],
+  },
+  armor: {
+    Common: [
+      'Counts as magical',
+      'Reduce fall damage by 1d6',
+      'Advantage on saves to resist being shoved or knocked prone',
+    ],
+    Uncommon: [
+      '+1 bonus to AC (armor or shield)',
+      'Advantage on one type of save (choose STR/DEX/CON) vs environmental hazards',
+      'Silent Straps: advantage on Stealth checks to avoid armor noise',
+    ],
+    Rare: [
+      '+2 bonus to AC (armor or shield)',
+      'Resistance to one damage type (choose fire, cold, lightning, necrotic, radiant)',
+      'Guardian: once per short rest, impose disadvantage on an attack vs an ally within 5 ft',
+    ],
+    'Very Rare': [
+      '+3 bonus to AC (armor or shield)',
+      'Magic Ward (3 charges): reaction to add +4 to a saving throw; regains 1d3 charges at dawn',
+      'You can breathe underwater and gain a swim speed equal to your speed',
+    ],
+    Legendary: [
+      '+3 AC; critical hits against you become normal hits',
+      'Bulwark: allies within 10 ft gain +1 to AC and saving throws while you are conscious',
+      'Once per long rest, cast globe of invulnerability centered on you (1 minute)',
+    ],
+  },
+  trinket: {
+    Common: [
+      'Tool boon: +2 bonus to checks with one artisan tool',
+      'Once per long rest, cast guidance on yourself (no concentration for 1 minute)',
+      'You always know which way is north and the time until sunrise/sunset',
+    ],
+    Uncommon: [
+      'Cloak/Ring-like: +1 to AC and saving throws (does not stack with itself)',
+      'Spellcasting focus: +1 to spell attack rolls',
+      'Feather Fall charm (1 charge/day)',
+    ],
+    Rare: [
+      'Amulet of Health-lite: your CON increases by +2 (max 20) while attuned',
+      'Boots-like: gain 10 ft bonus to movement',
+      'Wand-like (5 charges): cast a 2nd-level spell tied to theme; regains 1d4+1 charges at dawn',
+    ],
+    'Very Rare': [
+      'Resistance (permanent) to one damage type of the item’s theme',
+      'Once per short rest, bonus action: become invisible until end of your next turn',
+      'Spell DC +1 while attuned',
+    ],
+    Legendary: [
+      'Once per long rest, cast a 6th-level spell tied to theme',
+      'Fate Thread: when you fail a save, turn it into a success 1/long rest',
+      'You can’t be surprised while conscious',
+    ],
+  },
+}
+
+function pick(arr:string[], n:number){
+  const pool = [...arr]; const out:string[] = [];
+  while (out.length < n && pool.length) {
+    out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0])
+  }
+  return out
+}
+
+function dndName(thing:string){
+  const r = Math.random()
+  if (r < 0.5) return `${rand(NAME_PREFIX)} ${thing} ${rand(NAME_SUFFIX)}`
+  if (r < 0.85) return `${rand(NAME_MAKERS)}’s ${thing} ${rand(NAME_SUFFIX)}`
+  return `${rand(NAME_PREFIX)} ${thing}`
+}
 
 function rand<T>(arr:T[]){ return arr[Math.floor(Math.random()*arr.length)] }
+
 function roll(min:number,max:number){ return Math.floor(Math.random()*(max-min+1))+min }
+
+// Simple local button-grid picker with clear selected styles
+type PickerOption = { value:string; label:string; title?:string; icon?:string; color?:string }
+function OptionGrid({ options, value, onChange, columns=4 }:{ options:PickerOption[]; value:string; onChange:(v:string)=>void; columns?:number }){
+  return (
+    <div className="grid gap-2" style={{gridTemplateColumns:`repeat(${columns}, minmax(0,1fr))`}}>
+      {options.map((opt)=>{
+        const selected = value === opt.value
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            aria-pressed={selected}
+            title={opt.title || opt.label}
+            onClick={()=>onChange(opt.value)}
+            className={`group relative flex flex-col items-center justify-center gap-1 rounded-md border px-3 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${selected ? 'border-amber-500 bg-amber-50 shadow-[0_0_0_2px_rgba(245,158,11,0.35)]' : 'border-gray-300 bg-white hover:border-gray-400'}`}
+          >
+            <span className="text-xl leading-none select-none">{opt.icon ?? ''}</span>
+            <span className="leading-tight select-none">{opt.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function MagicItemClient(){
   // keep all state here in the parent
@@ -29,65 +209,40 @@ export default function MagicItemClient(){
     fetch('/api/wild-magic/effects').then(r=>r.json()).then(d=>{ if (d?.effects) setEffects(d.effects) }).catch(()=>{})
   },[])
 
-  function makeName(thing:string){
-    const prefixes = ['Burning','Frozen','Vicious','Hallowed','Stormforged','Gloom','Radiant','Wicked','Luminous','Dire','Ebon']
-    const suffixes = ['Slaying','Fortune','the Bear','the Phoenix','Vitality','Shadows','the Voyager','Precision','Whispers','the Infinite']
-    const people = ['Gunnar','Elara','Mord','Syl','Thistle','Grimm']
-    const pattern = Math.random()
-    if (pattern < 0.6) return `${rand(prefixes)} ${thing} of ${rand(suffixes)}`
-    if (pattern < 0.9) return `${people[Math.floor(Math.random()*people.length)]}'s ${thing} of ${rand(suffixes)}`
-    return `${rand(prefixes)} ${thing}`
-  }
+function makeName(thing:string){
+  return dndName(thing)
+}
 
   function generateStats(thing:string){
-    const base:any = { name: makeName(thing), rarity, theme, description: '', affixes: [] }
-    // base stat pools inspired by Diablo-style affixes
-    if (category === 'weapon'){
-      const dmg = {
-        Common: `${roll(3,6)}-${roll(6,12)}`,
-        Uncommon: `${roll(6,10)}-${roll(10,16)}`,
-        Rare: `${roll(10,16)}-${roll(16,28)}`,
-        Legendary: `${roll(18,30)}-${roll(30,60)}`,
-      }[rarity]
-      base.description = `${thing} — damage ${dmg}`
-      if (theme === 'Martial') base.affixes.push(`+${roll(1,3)} to Attack`) 
-      if (theme === 'Arcane') base.affixes.push(`Adds +${roll(1,3)} to spell strike`) 
-      if (theme === 'Nature') base.affixes.push(`Entwined — small chance to root on hit (flavor)`) 
-      if (theme === 'Necrotic') base.affixes.push(`Draining — heals the wielder for small amount (flavor)`) 
-      if (theme === 'Infernal') base.affixes.push(`Burning touch — minor fire flair`) 
-      if (rarity === 'Uncommon') base.affixes.push(`${roll(1,6)}% chance to pierce`) 
-      if (rarity === 'Rare') base.affixes.push(`+${roll(1,6)} to all attacks`) 
-      if (rarity === 'Legendary') base.affixes.push(`Grants one unique active ability (DM adjudicates)`) 
-    } else if (category === 'armor'){
-      const acMap = {
-        'Light Armor': {Common: 11, Uncommon:12, Rare:13, Legendary:14},
-        'Medium Armor': {Common:12, Uncommon:13, Rare:14, Legendary:15},
-        'Heavy Armor': {Common:14, Uncommon:15, Rare:16, Legendary:18},
-        'Shield': {Common:2, Uncommon:3, Rare:4, Legendary:5}
-      }[armorType] || { Common: 10, Uncommon:11, Rare:12, Legendary:13 }
-      const acVal = (acMap as any)[rarity] ?? acMap.Common
-      base.description = `${armorType} — base protection ${acVal}`
-      if (theme === 'Martial') base.affixes.push(`+${roll(1,3)} to Strength (flavor)`) 
-      if (theme === 'Arcane') base.affixes.push(`Ward — small magic resistance (flavor)`) 
-      if (theme === 'Nature') base.affixes.push(`Camouflage — subtle concealment (flavor)`) 
-      if (theme === 'Necrotic') base.affixes.push(`Thorns — hurts attackers slightly (flavor)`) 
-      if (theme === 'Infernal') base.affixes.push(`Hellforged — warmth and menace`) 
-      if (rarity === 'Rare') base.affixes.push(`+${roll(1,2)} to saving throws`) 
-      if (rarity === 'Legendary') base.affixes.push(`Reduces damage from one source by half once per short rest`) 
+    // Determine bucket by thing name
+    const bucket: 'weapon'|'armor'|'trinket' = ((): any => {
+      if (Object.prototype.hasOwnProperty.call(WEAPON_DAMAGE, thing)) return 'weapon'
+      if (Object.prototype.hasOwnProperty.call(ARMOR_BASE, thing) || thing === 'Shield') return 'armor'
+      return 'trinket'
+    })()
+
+    const attune = ATTUNE_BY_RARITY[rarity] ?? false
+    const base:any = { name: makeName(thing), rarity, theme, attunement: attune, description: '', affixes: [] as string[] }
+
+    if (bucket === 'weapon'){
+      const dmg = WEAPON_DAMAGE[thing] ?? '—'
+      base.description = `${thing} — ${dmg}`
+      if (RARITIES.indexOf(rarity) >= RARITIES.indexOf('Uncommon')) base.affixes.push('This weapon is magical')
+      const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
+      base.affixes.push(...pick(EFFECTS.weapon[rarity as keyof typeof EFFECTS.weapon], take))
+    } else if (bucket === 'armor'){
+      const ac = thing === 'Shield' ? ARMOR_BASE['Shield'] : ARMOR_BASE[thing]
+      base.description = `${thing} — ${ac}`
+      const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
+      base.affixes.push(...pick(EFFECTS.armor[rarity as keyof typeof EFFECTS.armor], take))
     } else {
-      // other trinkets / rings / amulets
-      base.description = `Trinket — minor boon`
-      base.affixes.push(`+${roll(1,4)} to a skill of your choice`)
-      if (rarity === 'Rare') base.affixes.push(`+${roll(1,4)} to all skills`) 
-      if (rarity === 'Legendary') base.affixes.push(`Unique effect: reshapes small fate`) 
+      base.description = `Wondrous item (trinket)`
+      const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
+      base.affixes.push(...pick(EFFECTS.trinket[rarity as keyof typeof EFFECTS.trinket], take))
     }
 
-    // small rarity flavor
-    if (rarity === 'Uncommon') base.affixes.push('Has a subtle glow')
-    if (rarity === 'Rare') base.affixes.push('Has an unusual rune carved into it')
-    if (rarity === 'Legendary') base.affixes.push('Legendary — storied in song')
-
-    // weight the number of affixes by rarity
+    if (attune) base.affixes.unshift('Requires attunement')
+    base.affixes.push(rand(THEME_FLAVOR[theme] ?? ['']))
     return base
   }
 
@@ -133,16 +288,17 @@ export default function MagicItemClient(){
 
   return (
     <div className="p-6 bg-gray-50 rounded-lg space-y-6">
+      <h2 className="text-2xl font-bold">Magic Item Generator</h2>
+      <p className="text-sm text-gray-600">Choose options below and forge a D&amp;D‑style magic item.</p>
       <div className="grid grid-cols-1 gap-6">
         <div>
           <label className="block text-sm font-semibold mb-2">Category</label>
-          <IconPicker
-            name="category"
+          <OptionGrid
             options={[
-              { value: 'weapon', label: 'Weapons', title: 'Weapons', icon: '🗡️', color: 'bg-red-100' },
-              { value: 'armor', label: 'Armor', title: 'Armor', icon: '🛡️', color: 'bg-blue-100' },
-              { value: 'trinket', label: 'Trinkets', title: 'Trinkets', icon: '💍', color: 'bg-yellow-100' },
-              { value: 'scroll', label: 'Scrolls', title: 'Scrolls', icon: '📜', color: 'bg-amber-100' },
+              { value: 'weapon', label: 'Weapons', title: 'Weapons', icon: '🗡️' },
+              { value: 'armor', label: 'Armor', title: 'Armor', icon: '🛡️' },
+              { value: 'trinket', label: 'Trinkets', title: 'Trinkets', icon: '💍' },
+              { value: 'scroll', label: 'Scrolls', title: 'Scrolls', icon: '📜' },
             ]}
             value={category}
             onChange={(v)=>setCategory(v)}
@@ -152,20 +308,23 @@ export default function MagicItemClient(){
 
         <div>
           <label className="block text-sm font-semibold mb-2">Rarity</label>
-          <IconPicker
-            name="rarity"
-            options={RARITIES.map(r=>({ value:r, label:r, title:r, icon: r === 'Legendary' ? '💎' : '♦️', color: r === 'Legendary' ? 'bg-yellow-200' : r === 'Rare' ? 'bg-indigo-100' : r === 'Uncommon' ? 'bg-green-100' : 'bg-gray-100' }))}
+          <OptionGrid
+            options={RARITIES.map(r=>({
+              value:r,
+              label:r,
+              title:r,
+              icon: r === 'Legendary' ? '💎' : r === 'Very Rare' ? '🔮' : '♦️',
+            }))}
             value={rarity}
             onChange={(v)=>setRarity(v)}
-            columns={4}
+            columns={5}
           />
         </div>
 
         {category === 'weapon' && (
           <div>
             <label className="block text-sm font-semibold mb-2">Weapon Type</label>
-            <IconPicker
-              name="weapontype"
+            <OptionGrid
               options={WEAPON_TYPES.map(w=>({ value:w, label:w, title:w, icon:w[0] }))}
               value={weaponType}
               onChange={(v)=>setWeaponType(v)}
@@ -177,8 +336,7 @@ export default function MagicItemClient(){
         {category === 'armor' && (
           <div>
             <label className="block text-sm font-semibold mb-2">Armor Type</label>
-            <IconPicker
-              name="armortype"
+            <OptionGrid
               options={ARMOR_TYPES.map(a=>({ value:a, label:a, title:a }))}
               value={armorType}
               onChange={(v)=>setArmorType(v)}
@@ -189,12 +347,11 @@ export default function MagicItemClient(){
 
         <div>
           <label className="block text-sm font-semibold mb-2">Theme</label>
-          <IconPicker
-            name="theme"
+          <OptionGrid
             options={THEMES.map(t=>({ value:t, label:t, title:t }))}
             value={theme}
             onChange={(v)=>setTheme(v)}
-            columns={5}
+            columns={6}
           />
         </div>
 
@@ -231,6 +388,7 @@ export default function MagicItemClient(){
                   {result.name}
                   <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
                     result.rarity === 'Legendary' ? 'bg-yellow-400 text-black' :
+                    result.rarity === 'Very Rare' ? 'bg-fuchsia-500 text-white' :
                     result.rarity === 'Rare' ? 'bg-indigo-500 text-white' :
                     result.rarity === 'Uncommon' ? 'bg-green-400 text-black' : 'bg-gray-200 text-black'
                   }`}>{result.rarity}</span>
