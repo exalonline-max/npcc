@@ -228,6 +228,10 @@ export default function MagicItemClient(){
   const [result, setResult] = React.useState<any| null>(null)
   const [effects, setEffects] = React.useState<any[] | null>(null)
   const [copied, setCopied] = React.useState<boolean>(false)
+  const [aiLoading, setAiLoading] = React.useState<boolean>(false)
+  const [aiSummary, setAiSummary] = React.useState<string | null>(null)
+  const [aiBullets, setAiBullets] = React.useState<string[] | null>(null)
+  const [aiError, setAiError] = React.useState<string | null>(null)
 
   React.useEffect(()=>{
     // load wild-magic effects for "weird" add-ons
@@ -310,6 +314,30 @@ function makeName(thing:string){
       try{ document.execCommand('copy'); setCopied(true); setTimeout(()=>setCopied(false),2000) }catch(e){ alert('Copy failed') }
       document.body.removeChild(ta)
     }
+  }
+
+  async function enhanceWithAI(){
+    if (!result) return
+    setAiLoading(true)
+    setAiError(null)
+    setAiSummary(null)
+    setAiBullets(null)
+    try{
+      const r = await fetch('/api/magic-item/describe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item: result }),
+      })
+      const data = await r.json()
+      if (!r.ok || data?.error) {
+        setAiError(data?.error || `Status ${r.status}`)
+      } else {
+        setAiSummary(data.summary ?? (typeof data === 'string' ? data : null))
+        setAiBullets(Array.isArray(data.bullets) ? data.bullets : null)
+      }
+    }catch(e:any){
+      setAiError(String(e?.message ?? e))
+    }finally{ setAiLoading(false) }
   }
 
   return (
@@ -471,12 +499,28 @@ function makeName(thing:string){
             )}
 
             {/* Bottom actions row */}
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between gap-4">
               <div className="text-xs text-gray-600">{result.attunement ? 'Requires attunement' : 'No attunement required'}</div>
-              <div>
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" onClick={enhanceWithAI} disabled={aiLoading || !result}>
+                  {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
+                </Button>
                 <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
               </div>
             </div>
+
+            {/* AI output */}
+            {aiError && <div className="mt-4 text-sm text-red-600">AI error: {aiError}</div>}
+            {aiSummary && (
+              <div className="mt-4 p-4 bg-white border rounded-md shadow-sm">
+                <div className="prose-sm"><div dangerouslySetInnerHTML={{ __html: aiSummary.replace(/\n/g, '<br/>') }} /></div>
+                {aiBullets && aiBullets.length > 0 && (
+                  <ul className="mt-2 list-disc pl-5">
+                    {aiBullets.map((b,i)=>(<li key={i} className="text-sm">{b}</li>))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
