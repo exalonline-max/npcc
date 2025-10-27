@@ -5,6 +5,18 @@ import Button from '../../../components/ui/button'
 
 
 const WEAPON_TYPES = ['Sword','Axe','Dagger','Mace','Bow','Crossbow','Spear','Staff','Warhammer','Greatsword']
+const WEAPON_ICONS: Record<string,string> = {
+  Sword: '🗡️',
+  Axe: '🪓',
+  Dagger: '🗡️',
+  Mace: '🔨',
+  Bow: '🏹',
+  Crossbow: '🏹',
+  Spear: '🔱',
+  Staff: '✨',
+  Warhammer: '⚒️',
+  Greatsword: '⚔️',
+}
 const ARMOR_TYPES = ['Light Armor','Medium Armor','Heavy Armor','Shield']
 const THEMES = ['Martial','Arcane','Divine','Primal','Shadow','Utility']
 const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary']
@@ -174,6 +186,13 @@ function OptionGrid({ options, value, onChange, columns=4 }:{ options:PickerOpti
     <div className="grid gap-2" style={{gridTemplateColumns:`repeat(${columns}, minmax(0,1fr))`}}>
       {options.map((opt)=>{
         const selected = value === opt.value
+        // when not selected, slightly dim and desaturate to emphasize chosen option
+        const base = selected
+          ? 'relative flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 border-2 shadow-md'
+          : 'relative flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition transform hover:-translate-y-0.5 focus:outline-none opacity-70 hover:opacity-95 border'
+
+        const selectedStyles = selected ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white border-amber-500' : 'bg-white/5 text-gray-200 border-gray-700'
+
         return (
           <button
             key={opt.value}
@@ -181,10 +200,10 @@ function OptionGrid({ options, value, onChange, columns=4 }:{ options:PickerOpti
             aria-pressed={selected}
             title={opt.title || opt.label}
             onClick={()=>onChange(opt.value)}
-            className={`group relative flex flex-col items-center justify-center gap-1 rounded-md border px-3 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${selected ? 'border-amber-500 bg-amber-50 shadow-[0_0_0_2px_rgba(245,158,11,0.35)]' : 'border-gray-300 bg-white hover:border-gray-400'}`}
+            className={`group ${base} ${selectedStyles}`}
           >
-            <span className="text-xl leading-none select-none">{opt.icon ?? ''}</span>
-            <span className="leading-tight select-none">{opt.label}</span>
+            <span className="text-2xl leading-none select-none">{opt.icon ?? ''}</span>
+            <span className="leading-tight select-none mt-1">{opt.label}</span>
           </button>
         )
       })}
@@ -326,7 +345,7 @@ function makeName(thing:string){
           <div>
             <label className="block text-sm font-semibold mb-2">Weapon Type</label>
             <OptionGrid
-              options={WEAPON_TYPES.map(w=>({ value:w, label:w, title:w, icon:w[0] }))}
+              options={WEAPON_TYPES.map(w=>({ value:w, label:w, title:w, icon: WEAPON_ICONS[w] ?? w[0] }))}
               value={weaponType}
               onChange={(v)=>setWeaponType(v)}
               columns={5}
@@ -348,26 +367,26 @@ function makeName(thing:string){
 
         <div>
           <label className="block text-sm font-semibold mb-2">Theme</label>
-          <OptionGrid
-            options={THEMES.map(t=>({ value:t, label:t, title:t }))}
-            value={theme}
-            onChange={(v)=>setTheme(v)}
-            columns={6}
-          />
+            <OptionGrid
+              options={THEMES.map(t=>({ value:t, label:t, title:t, icon: t === 'Arcane' ? '🔮' : t === 'Martial' ? '🛡️' : t === 'Divine' ? '✨' : t === 'Primal' ? '🌿' : t === 'Shadow' ? '🌑' : '⚙️' }))}
+              value={theme}
+              onChange={(v)=>setTheme(v)}
+              columns={6}
+            />
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Make it weird</label>
-            <button
-              aria-pressed={weird}
-              onClick={()=>setWeird(!weird)}
-              className={`w-12 h-6 rounded-full p-0.5 transition-all ${weird ? 'bg-purple-500 shadow-[0_0_12px_rgba(124,58,237,0.4)]' : 'bg-gray-300'}`}
-              title="Toggle weird effects"
-            >
-              <span className={`block w-5 h-5 bg-white rounded-full transform transition ${weird ? 'translate-x-6' : 'translate-x-0'}`}></span>
-            </button>
-          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium">Make it weird</label>
+              <button
+                aria-pressed={weird}
+                onClick={()=>setWeird(!weird)}
+                className={`w-16 h-8 rounded-full p-1 transition-all ${weird ? 'bg-purple-600 shadow-lg' : 'bg-gray-300/80 hover:bg-gray-300'}`}
+                title="Toggle weird effects"
+              >
+                <span className={`block w-6 h-6 bg-white rounded-full transform transition ${weird ? 'translate-x-8' : 'translate-x-0'}`}></span>
+              </button>
+            </div>
 
           <div className="ml-auto">
             <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
