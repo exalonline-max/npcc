@@ -382,25 +382,55 @@ function makeName(thing:string){
         </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium">Make it weird</label>
+            {/* Randomize button */}
+            <div>
               <button
-                aria-pressed={weird}
-                onClick={()=>setWeird(!weird)}
-                className={`w-16 h-8 rounded-full p-1 transition-all ${weird ? 'bg-purple-600 shadow-lg' : 'bg-gray-300/80 hover:bg-gray-300'}`}
-                title="Toggle weird effects"
+                type="button"
+                onClick={()=>{
+                  // randomize selections
+                  const cats = ['weapon','armor','trinket','scroll']
+                  const c = rand(cats)
+                  setCategory(c)
+                  const r = rand(RARITIES)
+                  setRarity(r)
+                  setTheme(rand(THEMES))
+                  setWeaponType(rand(WEAPON_TYPES))
+                  setArmorType(rand(ARMOR_TYPES))
+                  // small chance to enable weird
+                  setWeird(Math.random() < 0.35)
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-100 hover:bg-amber-200 border"
+                title="Randomize options"
               >
-                <span className={`block w-6 h-6 bg-white rounded-full transform transition ${weird ? 'translate-x-8' : 'translate-x-0'}`}></span>
+                🎲 Randomize
               </button>
             </div>
 
-          <div className="ml-auto">
-            <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
-              <span className="z-10 relative">Forge Item</span>
-              <span aria-hidden className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-transparent opacity-0 hover:opacity-30 transition-opacity"></span>
-            </Button>
+            {/* Accessible switch: clicking anywhere toggles */}
+            <div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={weird}
+                onClick={()=>setWeird(!weird)}
+                onKeyDown={(e)=>{ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setWeird(!weird) } }}
+                className={`flex items-center gap-3 px-3 py-1.5 rounded-md border shadow-sm ${weird ? 'bg-purple-600 text-white' : 'bg-white'}`}
+                title="Toggle weird effects"
+              >
+                <span className="text-sm font-medium">Make it weird</span>
+                <span className={`relative inline-block w-10 h-6 rounded-full transition-all ${weird ? 'bg-purple-400' : 'bg-gray-300'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform transition ${weird ? 'translate-x-4' : 'translate-x-0'}`}></span>
+                </span>
+              </button>
+            </div>
+
+            <div className="ml-auto">
+              <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
+                <span className="z-10 relative">Forge Item</span>
+                <span aria-hidden className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-transparent opacity-0 hover:opacity-30 transition-opacity"></span>
+              </Button>
+            </div>
           </div>
-        </div>
 
       </div>
 
@@ -410,33 +440,34 @@ function makeName(thing:string){
             <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.08)'}}></div>
 
             {/* Decorative header */}
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-2xl shadow-sm">🔱</div>
-              <div>
-                <h3 className="text-2xl font-serif font-bold leading-tight">{result.name}</h3>
-                {/* Rarity on its own line */}
-                <div className="mt-1">
-                  <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full tracking-wide shadow-inner ${
-                    result.rarity === 'Legendary' ? 'bg-yellow-400 text-black' :
-                    result.rarity === 'Very Rare' ? 'bg-fuchsia-500 text-white' :
-                    result.rarity === 'Rare' ? 'bg-indigo-500 text-white' :
-                    result.rarity === 'Uncommon' ? 'bg-green-400 text-black' : 'bg-gray-200 text-black'
-                  }`}>{result.rarity}</span>
-                </div>
+            <div className="flex items-start gap-4 mb-3">
+              <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl shadow-sm">🔱</div>
+              <div className="flex-1">
+                <h3 className="text-3xl font-serif font-bold leading-tight">{result.name}</h3>
+                {/* small italic type/rarity line like the handbook */}
+                <div className="mt-1 text-sm italic text-gray-700">{
+                  // show a concise type line: "Wondrous item, uncommon" for trinkets or "Weapon (Dagger), rare"
+                  ((): string => {
+                    if (result.description?.startsWith('Wondrous')) return `Wondrous item, ${result.rarity.toLowerCase()}`
+                    if (result.description?.includes('—')) return `${result.rarity.toLowerCase()} ${result.description.split('—')[0].trim()}`
+                    return `${result.rarity.toLowerCase()}`
+                  })()
+                }</div>
+
+                {/* main descriptive paragraph styled like the handbook */}
+                <div className="mt-3 prose-sm text-gray-800">{result.description}</div>
               </div>
             </div>
 
-            <div className="mb-3 text-sm text-gray-700">{result.description}</div>
-
-            <div className="mt-2">
-              <ul className="list-disc pl-6 space-y-1">
-                {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
+            <div className="mt-2 pl-3 border-l-2 border-amber-200">
+              <ul className="list-disc pl-5 space-y-1">
+                {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm leading-snug">{a}</li> )}
               </ul>
             </div>
 
-            {/* Flavor text, italic and slightly separated */}
+            {/* Flavor text, italic and slightly separated like a lore paragraph */}
             {result.flavor && (
-              <div className="mt-4 text-sm text-gray-600 italic border-t pt-3">{result.flavor}</div>
+              <div className="mt-5 text-sm text-gray-700 italic">{result.flavor}</div>
             )}
 
             {/* Bottom actions row */}
