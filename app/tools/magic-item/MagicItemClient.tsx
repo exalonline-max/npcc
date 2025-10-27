@@ -20,6 +20,7 @@ export default function MagicItemClient(){
   const [weird, setWeird] = React.useState<boolean>(false)
   const [result, setResult] = React.useState<any| null>(null)
   const [effects, setEffects] = React.useState<any[] | null>(null)
+  const [copied, setCopied] = React.useState<boolean>(false)
 
   React.useEffect(()=>{
     // load wild-magic effects for "weird" add-ons
@@ -106,6 +107,24 @@ export default function MagicItemClient(){
     setResult(base)
   }
 
+  async function copyResultText(){
+    if (!result) return
+    const text = `${result.name}\n${result.description}\n\nAffixes:\n- ${result.affixes.join('\n- ')}`
+    try{
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(()=>setCopied(false),2000)
+    }catch(e){
+      // fallback
+      const ta = document.createElement('textarea')
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      try{ document.execCommand('copy'); setCopied(true); setTimeout(()=>setCopied(false),2000) }catch(e){ alert('Copy failed') }
+      document.body.removeChild(ta)
+    }
+  }
+
   return (
     <div className="p-4 bg-white border rounded space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -161,12 +180,29 @@ export default function MagicItemClient(){
       </div>
 
       {result && (
-        <div className="mt-4 p-4 border rounded bg-gray-50">
-          <h3 className="text-lg font-semibold">{result.name}</h3>
-          <div className="text-sm text-gray-600 mt-1">{result.description}</div>
-          <ul className="mt-2 list-disc pl-5">
-            {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
-          </ul>
+        <div className="mt-4">
+          <div className="card bg-base-100 shadow-lg border border-gray-200 rounded-lg p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-semibold flex items-center gap-3">
+                  {result.name}
+                  {/* rarity badge */}
+                  <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    result.rarity === 'Legendary' ? 'bg-yellow-400 text-black' :
+                    result.rarity === 'Rare' ? 'bg-indigo-500 text-white' :
+                    result.rarity === 'Uncommon' ? 'bg-green-400 text-black' : 'bg-gray-200 text-black'
+                  }`}>{result.rarity}</span>
+                </h3>
+                <div className="text-sm text-gray-600 mt-1">{result.description}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
+              </div>
+            </div>
+            <ul className="mt-2 list-disc pl-5">
+              {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
+            </ul>
+          </div>
         </div>
       )}
     </div>
