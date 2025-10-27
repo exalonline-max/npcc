@@ -18,8 +18,23 @@ const WEAPON_ICONS: Record<string,string> = {
   Greatsword: '⚔️',
 }
 const ARMOR_TYPES = ['Light Armor','Medium Armor','Heavy Armor','Shield']
-const THEMES = ['Martial','Arcane','Divine','Primal','Shadow','Utility']
+const THEMES = ['Random','Martial','Arcane','Divine','Primal','Shadow','Utility','Elemental','Fey','Celestial','Necrotic','Technomancy','Eldritch']
 const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary']
+
+const CATEGORY_ICONS: Record<string,string> = {
+  weapon: '🗡️',
+  armor: '🛡️',
+  trinket: '💍',
+  scroll: '📜',
+}
+
+const RARITY_BADGE_CLASSES: Record<string,string> = {
+  Common: 'bg-gray-200 text-gray-800',
+  Uncommon: 'bg-amber-200 text-amber-800',
+  Rare: 'bg-rose-200 text-rose-800',
+  'Very Rare': 'bg-indigo-200 text-indigo-900',
+  Legendary: 'bg-yellow-200 text-yellow-900',
+}
 
 // D&D-style lookup tables
 const WEAPON_DAMAGE: Record<string,string> = {
@@ -67,6 +82,31 @@ const THEME_FLAVOR: Record<string,string[]> = {
   Primal: ['Bound with braided vine and tooth','Whispers of wind and beasts'],
   Shadow: ['Edges drink the light','Cold haze trails in darkness'],
   Utility: ['Fitted with clever catches and gears','Faint scent of ozone and ink'],
+  Elemental: ['Warm with residual elemental energy','Crackles faintly with heat or cold depending on mood'],
+  Fey: ['Prismatic motes dance around it','Smells faintly of wildflowers and mischief'],
+  Celestial: ['A thin halo of light clings to the item','Soft choral hum when held aloft'],
+  Necrotic: ['A cold, dry whisper follows it','Edges show faint blackened runes'],
+  Technomancy: ['Small gears tick inside when agitated','Faint scent of ozone and machine oil'],
+  Eldritch: ['Unnatural geometry shivers across its surface','A low, discordant chord plays when used'],
+}
+
+function themeIcon(t:string){
+  switch(t){
+    case 'Random': return '🎲'
+    case 'Arcane': return '🔮'
+    case 'Martial': return '🛡️'
+    case 'Divine': return '✨'
+    case 'Primal': return '🌿'
+    case 'Shadow': return '🌑'
+    case 'Utility': return '⚙️'
+    case 'Elemental': return '🔥'
+    case 'Fey': return '🧚'
+    case 'Celestial': return '🌟'
+    case 'Necrotic': return '☠️'
+    case 'Technomancy': return '🤖'
+    case 'Eldritch': return '🜇'
+    default: return '⚙️'
+  }
 }
 
 const EFFECTS = {
@@ -114,29 +154,34 @@ const EFFECTS = {
     Common: [
       'Counts as magical',
       'Light padding: reduces chafing and grants comfort in long marches',
+      'Reinforced seams: minor protection against wear and tear (reduces maintenance checks)',
       'Reduce fall damage by 1d6',
       'Advantage on saves to resist being shoved or knocked prone',
     ],
     Uncommon: [
       '+1 bonus to AC (armor or shield)',
+      'Quick-mend: once per day, minor repairs auto-stitch (cosmetic only)',
       'Quick-strap: donning or doffing the armor takes half the usual time',
       'Advantage on one type of save (choose STR/DEX/CON) vs environmental hazards',
       'Silent Straps: advantage on Stealth checks to avoid armor noise',
     ],
     Rare: [
       '+2 bonus to AC (armor or shield)',
+      'Temperature weave: grants comfort in extreme heat or cold, reducing exhaustion checks',
       'Reactive plating: once per short rest, reduce a hit by 1d8',
       'Resistance to one damage type (choose fire, cold, lightning, necrotic, radiant)',
       'Guardian: once per short rest, impose disadvantage on an attack vs an ally within 5 ft',
     ],
     'Very Rare': [
       '+3 bonus to AC (armor or shield)',
+      'Harmonic wards: briefly grant advantage on one saving throw per short rest',
       'Spellbound weave: while worn, grants +1 to spellcasting concentration checks',
       'Magic Ward (3 charges): reaction to add +4 to a saving throw; regains 1d3 charges at dawn',
       'You can breathe underwater and gain a swim speed equal to your speed',
     ],
     Legendary: [
       '+3 AC; critical hits against you become normal hits',
+      'Living Plate: the armor shifts to better protect vulnerable spots (DM adjudicates once/day)',
       'Aegis of Ages: once per long rest, reflect a single spell back at its caster',
       'Bulwark: allies within 10 ft gain +1 to AC and saving throws while you are conscious',
       'Once per long rest, cast globe of invulnerability centered on you (1 minute)',
@@ -145,30 +190,35 @@ const EFFECTS = {
   trinket: {
     Common: [
       'Tool boon: +2 bonus to checks with one artisan tool',
+      'Trinket clasp: won’t fall off in water or during acrobatics',
       'Pocket charm: small hidden compartment holds trivial items without adding weight',
       'Once per long rest, cast guidance on yourself (no concentration for 1 minute)',
       'You always know which way is north and the time until sunrise/sunset',
     ],
     Uncommon: [
       'Cloak/Ring-like: +1 to AC and saving throws (does not stack with itself)',
+      'Subtle sigil: grants +1 to Persuasion checks in one social niche',
       'Minor ward: grants +1 to a chosen skill while attuned',
       'Spellcasting focus: +1 to spell attack rolls',
       'Feather Fall charm (1 charge/day)',
     ],
     Rare: [
       'Amulet of Health-lite: your CON increases by +2 (max 20) while attuned',
+      'Echo locket: record a single short sound and play it back once per day',
       'Boots-like: brief feather-step ability once per short rest',
       'Boots-like: gain 10 ft bonus to movement',
       'Wand-like (5 charges): cast a 2nd-level spell tied to theme; regains 1d4+1 charges at dawn',
     ],
     'Very Rare': [
       'Resistance (permanent) to one damage type of the item’s theme',
+      'Phase bead: once per long rest, ignore difficult terrain for 1 minute',
       'Ethereal echo: once per long rest, phase briefly into ethereal plane (1 round)',
       'Once per short rest, bonus action: become invisible until end of your next turn',
       'Spell DC +1 while attuned',
     ],
     Legendary: [
       'Once per long rest, cast a 6th-level spell tied to theme',
+      'World-anchored charm: anchors a teleport tether to a chosen pocket dimension',
       'World-Touched: item grants a faint teleportation tether to a chosen location once per week',
       'Fate Thread: when you fail a save, turn it into a success 1/long rest',
       'You can’t be surprised while conscious',
@@ -260,9 +310,13 @@ function makeName(thing:string){
       if (Object.prototype.hasOwnProperty.call(ARMOR_BASE, thing) || thing === 'Shield') return 'armor'
       return 'trinket'
     })()
+      // resolve theme: if user chose 'Random', pick a concrete theme now
+      const resolvedTheme = theme === 'Random' ? rand(THEMES.filter(t=>t !== 'Random')) : theme
 
-    const attune = ATTUNE_BY_RARITY[rarity] ?? false
-  const base:any = { name: makeName(thing), rarity, theme, attunement: attune, description: '', affixes: [] as string[], flavor: '' }
+      const attune = ATTUNE_BY_RARITY[rarity] ?? false
+      const base:any = { name: makeName(thing), rarity, theme: resolvedTheme, attunement: attune, description: '', affixes: [] as string[], flavor: '' }
+      // record the detected category so the UI can show an icon/badge
+      ;(base as any).category = bucket
 
     if (bucket === 'weapon'){
       const dmg = WEAPON_DAMAGE[thing] ?? '—'
@@ -281,9 +335,9 @@ function makeName(thing:string){
       base.affixes.push(...pick(EFFECTS.trinket[rarity as keyof typeof EFFECTS.trinket], take))
     }
 
-    if (attune) base.affixes.unshift('Requires attunement')
+  // attunement is recorded separately on the item; avoid duplicating it in affixes
     // Set a dedicated flavor line (short italic text) instead of burying it in affixes
-    base.flavor = rand(THEME_FLAVOR[theme] ?? [''])
+    base.flavor = rand(THEME_FLAVOR[resolvedTheme] ?? [''])
     return base
   }
 
@@ -372,10 +426,29 @@ function makeName(thing:string){
     <div className="p-6 bg-gray-50 rounded-lg space-y-6">
       <h2 className="text-2xl font-bold">Magic Item Generator</h2>
       <p className="text-sm text-gray-600">Choose options below and forge a D&amp;D‑style magic item.</p>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-1">
+      <div className="grid md:grid-cols-3 gap-6" style={{display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem'}}>
+        <div className="md:col-span-1" style={{minWidth: 260}}>
           <div className="grid grid-cols-1 gap-6">
             <div>
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={() => {
+                const cats = ['weapon','armor','trinket','scroll']
+                const c = rand(cats)
+                setCategory(c)
+                const r = rand(RARITIES)
+                setRarity(r)
+                setTheme(rand(THEMES))
+                setWeaponType(rand(WEAPON_TYPES))
+                setArmorType(rand(ARMOR_TYPES))
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-100 hover:bg-amber-200 border"
+              title="Randomize options"
+            >
+              🎲 Randomize
+            </button>
+          </div>
           <label className="block text-sm font-semibold mb-2">Category</label>
           <OptionGrid
             options={[
@@ -432,7 +505,7 @@ function makeName(thing:string){
         <div>
           <label className="block text-sm font-semibold mb-2">Theme</label>
             <OptionGrid
-              options={THEMES.map(t=>({ value:t, label:t, title:t, icon: t === 'Arcane' ? '🔮' : t === 'Martial' ? '🛡️' : t === 'Divine' ? '✨' : t === 'Primal' ? '🌿' : t === 'Shadow' ? '🌑' : '⚙️' }))}
+              options={THEMES.map(t=>({ value:t, label:t, title:t, icon: themeIcon(t) }))}
               value={theme}
               onChange={(v)=>setTheme(v)}
               columns={6}
@@ -440,31 +513,6 @@ function makeName(thing:string){
         </div>
 
           <div className="flex items-center gap-4">
-            {/* Randomize button */}
-            <div>
-              <button
-                type="button"
-                onClick={()=>{
-                  // randomize selections
-                  const cats = ['weapon','armor','trinket','scroll']
-                  const c = rand(cats)
-                  setCategory(c)
-                  const r = rand(RARITIES)
-                  setRarity(r)
-                  setTheme(rand(THEMES))
-                  setWeaponType(rand(WEAPON_TYPES))
-                  setArmorType(rand(ARMOR_TYPES))
-                  // small chance to enable weird (disabled)
-                }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-100 hover:bg-amber-200 border"
-                title="Randomize options"
-              >
-                🎲 Randomize
-              </button>
-            </div>
-
-            {/* "Make it weird" toggle removed temporarily */}
-
             <div className="ml-auto">
               <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
                 <span className="z-10 relative">Forge Item</span>
@@ -478,49 +526,74 @@ function makeName(thing:string){
             <div className="md:col-span-2">
             {result && (
               <div className="mt-4">
-                <div className="relative rounded-lg p-6 shadow-lg border-2" style={{backgroundImage: 'linear-gradient(180deg, #fff8ef, #fff3e6)'}}>
-                  <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.08)'}}></div>
+                <div
+                  className="relative rounded-xl p-8 shadow-xl border-4 overflow-hidden"
+                  style={{
+                    backgroundImage: 'linear-gradient(180deg, #fff8ef, #fff3e6)',
+                    borderStyle: 'solid',
+                    borderImage: 'linear-gradient(90deg,#f6ad55,#d97706,#f472b6) 1',
+                    boxShadow: '0 12px 30px rgba(16,24,40,0.08)'
+                  }}
+                >
+                      {/* subtle inner parchment rim */}
+                      <div className="absolute -inset-2 rounded-xl pointer-events-none" style={{boxShadow: 'inset 0 0 0 6px rgba(255,245,238,0.6)'}}></div>
 
-                  {/* Decorative header */}
-                  <div className="flex items-start gap-4 mb-3">
-                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl shadow-sm">🔱</div>
-                    <div className="flex-1">
-                      <h3 className="text-3xl font-serif font-bold leading-tight">{result.name}</h3>
-                      {/* small italic type/rarity line like the handbook */}
-                      <div className="mt-1 text-sm italic text-gray-700">{
-                        ((): string => {
-                          if (result.description?.startsWith('Wondrous')) return `Wondrous item, ${result.rarity.toLowerCase()}`
-                          if (result.description?.includes('—')) return `${result.rarity.toLowerCase()} ${result.description.split('—')[0].trim()}`
-                          return `${result.rarity.toLowerCase()}`
-                        })()
-                      }</div>
+                      {/* Top banner (name + small subtitle) */}
+                      <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-[92%] pointer-events-none">
+                        <div className="bg-white rounded-t-xl border-b-2 border-amber-200 text-center py-3 shadow-sm pointer-events-auto">
+                          <div className="text-4xl font-serif font-extrabold text-red-900 tracking-wide drop-shadow-md" style={{fontFamily: "'Cinzel', Georgia, serif"}}>{result.name}</div>
+                          <div className="text-sm text-gray-600 italic mt-1">{
+                            (() => {
+                              const desc = result.description ?? ''
+                              if (desc.startsWith('Wondrous')) return 'Wondrous item'
+                              if (desc.includes('—')) return `${desc.split('—')[0].trim()}, ${String(result.rarity ?? '').toLowerCase()}`
+                              return `${String(result.rarity ?? '')}`
+                            })()
+                          }</div>
+                          <div className="text-xs text-gray-500 mt-1">{result.attunement ? 'Requires attunement' : 'No attunement required'}</div>
+                        </div>
+                      </div>
 
-                      {/* main descriptive paragraph styled like the handbook */}
-                      <div className="mt-3 prose-sm text-gray-800">{result.description}</div>
-                    </div>
-                  </div>
+                      {/* Card body layout: make room for banner */}
+                      <div className="pt-12">
+                        {/* Center art / icon */}
+                        <div className="flex items-center justify-center">
+                          <div className="w-40 h-40 rounded-lg bg-white/90 flex items-center justify-center text-6xl shadow-md">{CATEGORY_ICONS[result.category] ?? themeIcon(result.theme)}</div>
+                        </div>
 
-                  <div className="mt-2 pl-3 border-l-2 border-amber-200">
-                    <ul className="list-disc pl-5 space-y-1">
-                      {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm leading-snug">{a}</li> )}
-                    </ul>
-                  </div>
+                        {/* Parchment flavor box (flavor moved to bottom of card) */}
+                        <div className="mt-6 mx-6 bg-white/95 border rounded-md p-4" style={{boxShadow: 'inset 0 0 0 6px rgba(245,238,224,0.6)'}}>
+                          {/* show the shorter stat/description */}
+                          <div className="mt-3 text-sm text-gray-800 text-center">
+                            {(() => {
+                              const desc = result.description ?? ''
+                              if (desc.startsWith('Wondrous')) return desc
+                              if (desc.includes('—')) return desc.split('—').slice(1).join('—').trim()
+                              return desc
+                            })()}
+                          </div>
+                        </div>
 
-                  {/* Flavor text, italic and slightly separated like a lore paragraph */}
-                  {result.flavor && (
-                    <div className="mt-5 text-sm text-gray-700 italic">{result.flavor}</div>
-                  )}
+                        {/* Rules / affixes list (bottom panel) */}
+                        <div className="mt-4 mx-6 bg-white/95 border rounded-b-md p-3">
+                          <ul className="list-disc pl-5 space-y-1 text-sm">
+                            {result.affixes.map((a:any, i:number)=> <li key={i} className="leading-snug">{a}</li>)}
+                          </ul>
 
-                  {/* Bottom actions row */}
-                  <div className="mt-4 flex items-center justify-between gap-4">
-                    <div className="text-xs text-gray-600">{result.attunement ? 'Requires attunement' : 'No attunement required'}</div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="secondary" onClick={enhanceWithAI} disabled={aiLoading || !result}>
-                        {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
-                      </Button>
-                      <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
-                    </div>
-                  </div>
+                          {/* Flavor quote moved to bottom of card (inside rules panel) */}
+                          {result.flavor && (
+                            <div className="mt-3 text-center italic text-gray-700">{`“${result.flavor}”`}</div>
+                          )}
+                        </div>
+
+                        {/* Bottom actions row */}
+                        <div className="mt-4 flex items-center justify-end gap-2 px-6">
+                          <Button variant="secondary" onClick={enhanceWithAI} disabled={aiLoading || !result}>
+                            {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
+                          </Button>
+                          <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
+                        </div>
+                      </div>
                 </div>
               </div>
             )}
