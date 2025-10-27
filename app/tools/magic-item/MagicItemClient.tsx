@@ -2,17 +2,19 @@
 
 import React from 'react'
 import Button from '../../../components/ui/button'
+import IconPicker from '../../../components/IconPicker'
 
-const WEAPON_TYPES = ['Sword','Axe','Dagger','Mace','Bow','Spear','Staff']
+const WEAPON_TYPES = ['Sword','Axe','Bow','Staff','Wand']
 const ARMOR_TYPES = ['Light Armor','Medium Armor','Heavy Armor','Shield']
-const THEMES = ['Martial','Support','Roleplay']
+const THEMES = ['Martial','Arcane','Nature','Necrotic','Infernal']
 const RARITIES = ['Common','Uncommon','Rare','Legendary']
 
 function rand<T>(arr:T[]){ return arr[Math.floor(Math.random()*arr.length)] }
 function roll(min:number,max:number){ return Math.floor(Math.random()*(max-min+1))+min }
 
 export default function MagicItemClient(){
-  const [category, setCategory] = React.useState<'weapon'|'armor'|'other'>('weapon')
+  // keep all state here in the parent
+  const [category, setCategory] = React.useState<string>('weapon')
   const [weaponType, setWeaponType] = React.useState<string>(WEAPON_TYPES[0])
   const [armorType, setArmorType] = React.useState<string>(ARMOR_TYPES[0])
   const [rarity, setRarity] = React.useState<string>('Common')
@@ -49,8 +51,10 @@ export default function MagicItemClient(){
       }[rarity]
       base.description = `${thing} — damage ${dmg}`
       if (theme === 'Martial') base.affixes.push(`+${roll(1,3)} to Attack`) 
-      if (theme === 'Support') base.affixes.push(`+${roll(1,4)} to Ally Damage`) 
-      if (theme === 'Roleplay') base.affixes.push(`+${roll(1,4)} to Charisma checks (flavor)`) 
+      if (theme === 'Arcane') base.affixes.push(`Adds +${roll(1,3)} to spell strike`) 
+      if (theme === 'Nature') base.affixes.push(`Entwined — small chance to root on hit (flavor)`) 
+      if (theme === 'Necrotic') base.affixes.push(`Draining — heals the wielder for small amount (flavor)`) 
+      if (theme === 'Infernal') base.affixes.push(`Burning touch — minor fire flair`) 
       if (rarity === 'Uncommon') base.affixes.push(`${roll(1,6)}% chance to pierce`) 
       if (rarity === 'Rare') base.affixes.push(`+${roll(1,6)} to all attacks`) 
       if (rarity === 'Legendary') base.affixes.push(`Grants one unique active ability (DM adjudicates)`) 
@@ -64,8 +68,10 @@ export default function MagicItemClient(){
       const acVal = (acMap as any)[rarity] ?? acMap.Common
       base.description = `${armorType} — base protection ${acVal}`
       if (theme === 'Martial') base.affixes.push(`+${roll(1,3)} to Strength (flavor)`) 
-      if (theme === 'Support') base.affixes.push(`+${roll(1,6)} to Healing received`) 
-      if (theme === 'Roleplay') base.affixes.push(`Gives minor illusion when worn`) 
+      if (theme === 'Arcane') base.affixes.push(`Ward — small magic resistance (flavor)`) 
+      if (theme === 'Nature') base.affixes.push(`Camouflage — subtle concealment (flavor)`) 
+      if (theme === 'Necrotic') base.affixes.push(`Thorns — hurts attackers slightly (flavor)`) 
+      if (theme === 'Infernal') base.affixes.push(`Hellforged — warmth and menace`) 
       if (rarity === 'Rare') base.affixes.push(`+${roll(1,2)} to saving throws`) 
       if (rarity === 'Legendary') base.affixes.push(`Reduces damage from one source by half once per short rest`) 
     } else {
@@ -126,80 +132,116 @@ export default function MagicItemClient(){
   }
 
   return (
-    <div className="p-4 bg-white border rounded space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="p-6 bg-gray-50 rounded-lg space-y-6">
+      <div className="grid grid-cols-1 gap-6">
         <div>
-          <label className="block text-sm font-medium">Category</label>
-          <select value={category} onChange={(e)=>setCategory(e.target.value as any)} className="mt-1 block w-full">
-            <option value="weapon">Weapon</option>
-            <option value="armor">Armor</option>
-            <option value="other">Other</option>
-          </select>
+          <label className="block text-sm font-semibold mb-2">Category</label>
+          <IconPicker
+            name="category"
+            options={[
+              { value: 'weapon', label: 'Weapons', title: 'Weapons', icon: '🗡️', color: 'bg-red-100' },
+              { value: 'armor', label: 'Armor', title: 'Armor', icon: '🛡️', color: 'bg-blue-100' },
+              { value: 'trinket', label: 'Trinkets', title: 'Trinkets', icon: '💍', color: 'bg-yellow-100' },
+              { value: 'scroll', label: 'Scrolls', title: 'Scrolls', icon: '📜', color: 'bg-amber-100' },
+            ]}
+            value={category}
+            onChange={(v)=>setCategory(v)}
+            columns={4}
+          />
         </div>
+
         <div>
-          <label className="block text-sm font-medium">Rarity</label>
-          <select value={rarity} onChange={(e)=>setRarity(e.target.value)} className="mt-1 block w-full">
-            {RARITIES.map(r=> <option key={r} value={r}>{r}</option>)}
-          </select>
+          <label className="block text-sm font-semibold mb-2">Rarity</label>
+          <IconPicker
+            name="rarity"
+            options={RARITIES.map(r=>({ value:r, label:r, title:r, icon: r === 'Legendary' ? '💎' : '♦️', color: r === 'Legendary' ? 'bg-yellow-200' : r === 'Rare' ? 'bg-indigo-100' : r === 'Uncommon' ? 'bg-green-100' : 'bg-gray-100' }))}
+            value={rarity}
+            onChange={(v)=>setRarity(v)}
+            columns={4}
+          />
         </div>
 
         {category === 'weapon' && (
           <div>
-            <label className="block text-sm font-medium">Weapon Type</label>
-            <select value={weaponType} onChange={(e)=>setWeaponType(e.target.value)} className="mt-1 block w-full">
-              {WEAPON_TYPES.map(w=> <option key={w} value={w}>{w}</option>)}
-            </select>
+            <label className="block text-sm font-semibold mb-2">Weapon Type</label>
+            <IconPicker
+              name="weapontype"
+              options={WEAPON_TYPES.map(w=>({ value:w, label:w, title:w, icon:w[0] }))}
+              value={weaponType}
+              onChange={(v)=>setWeaponType(v)}
+              columns={5}
+            />
           </div>
         )}
 
         {category === 'armor' && (
           <div>
-            <label className="block text-sm font-medium">Armor Type</label>
-            <select value={armorType} onChange={(e)=>setArmorType(e.target.value)} className="mt-1 block w-full">
-              {ARMOR_TYPES.map(a=> <option key={a} value={a}>{a}</option>)}
-            </select>
+            <label className="block text-sm font-semibold mb-2">Armor Type</label>
+            <IconPicker
+              name="armortype"
+              options={ARMOR_TYPES.map(a=>({ value:a, label:a, title:a }))}
+              value={armorType}
+              onChange={(v)=>setArmorType(v)}
+              columns={4}
+            />
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium">Theme</label>
-          <select value={theme} onChange={(e)=>setTheme(e.target.value)} className="mt-1 block w-full">
-            {THEMES.map(t=> <option key={t} value={t}>{t}</option>)}
-          </select>
+          <label className="block text-sm font-semibold mb-2">Theme</label>
+          <IconPicker
+            name="theme"
+            options={THEMES.map(t=>({ value:t, label:t, title:t }))}
+            value={theme}
+            onChange={(v)=>setTheme(v)}
+            columns={5}
+          />
         </div>
 
-        <div className="flex items-center">
-          <label className="mr-2 text-sm font-medium">Make it weird</label>
-          <input type="checkbox" checked={weird} onChange={(e)=>setWeird(e.target.checked)} />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Make it weird</label>
+            <button
+              aria-pressed={weird}
+              onClick={()=>setWeird(!weird)}
+              className={`w-12 h-6 rounded-full p-0.5 transition-all ${weird ? 'bg-purple-500 shadow-[0_0_12px_rgba(124,58,237,0.4)]' : 'bg-gray-300'}`}
+              title="Toggle weird effects"
+            >
+              <span className={`block w-5 h-5 bg-white rounded-full transform transition ${weird ? 'translate-x-6' : 'translate-x-0'}`}></span>
+            </button>
+          </div>
+
+          <div className="ml-auto">
+            <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
+              <span className="z-10 relative">Forge Item</span>
+              <span aria-hidden className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-transparent opacity-0 hover:opacity-30 transition-opacity"></span>
+            </Button>
+          </div>
         </div>
 
-      </div>
-
-      <div className="flex items-center" style={{gap:12}}>
-        <Button variant="primary" onClick={onGenerate}>Generate</Button>
       </div>
 
       {result && (
         <div className="mt-4">
-          <div className="card bg-base-100 shadow-lg border border-gray-200 rounded-lg p-4">
+          <div className="relative bg-amber-50 border-2 border-brown-400 rounded-lg p-6 shadow-lg" style={{backgroundImage: 'linear-gradient(180deg, rgba(255,250,240,0.9), rgba(255,245,230,0.8))'}}>
+            <div className="absolute -inset-1 rounded-lg pointer-events-none" style={{boxShadow: 'inset 0 0 0 3px rgba(90,53,15,0.12)'}}></div>
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold flex items-center gap-3">
+                <h3 className="text-xl font-bold flex items-center gap-3">
                   {result.name}
-                  {/* rarity badge */}
                   <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${
                     result.rarity === 'Legendary' ? 'bg-yellow-400 text-black' :
                     result.rarity === 'Rare' ? 'bg-indigo-500 text-white' :
                     result.rarity === 'Uncommon' ? 'bg-green-400 text-black' : 'bg-gray-200 text-black'
                   }`}>{result.rarity}</span>
                 </h3>
-                <div className="text-sm text-gray-600 mt-1">{result.description}</div>
+                <div className="mt-2 text-sm text-gray-700 italic">{result.description}</div>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
               </div>
             </div>
-            <ul className="mt-2 list-disc pl-5">
+            <ul className="mt-4 list-disc pl-6 space-y-1">
               {result.affixes.map((a:any, i:number)=> <li key={i} className="text-sm">{a}</li> )}
             </ul>
           </div>
