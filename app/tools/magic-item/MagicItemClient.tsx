@@ -295,7 +295,10 @@ function makeName(thing:string){
     if (category === 'armor') thing = armorType
     const base = generateStats(thing)
     if (weird) attachWeird(base)
+    // set a quick immediate preview while we ask the AI to polish
     setResult(base)
+    // call AI to polish, auto-apply bullets and paragraph into the item
+    enhanceWithAI(base, true)
   }
 
   async function copyResultText(){
@@ -316,8 +319,11 @@ function makeName(thing:string){
     }
   }
 
-  async function enhanceWithAI(){
-    if (!result) return
+  // Enhance an item via the AI endpoint. If `autoApply` is true, merge bullets into the
+  // item's affixes and replace the description with the AI paragraph (if available).
+  async function enhanceWithAI(itemParam?: any, autoApply = false){
+    const target = itemParam ?? result
+    if (!target) return
     setAiLoading(true)
     setAiError(null)
     setAiSummary(null)
@@ -326,14 +332,36 @@ function makeName(thing:string){
       const r = await fetch('/api/magic-item/describe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item: result }),
+        body: JSON.stringify({ item: target }),
       })
       const data = await r.json()
       if (!r.ok || data?.error) {
         setAiError(data?.error || `Status ${r.status}`)
       } else {
-        setAiSummary(data.summary ?? (typeof data === 'string' ? data : null))
-        setAiBullets(Array.isArray(data.bullets) ? data.bullets : null)
+        const summary = data.summary ?? (typeof data === 'string' ? data : null)
+        const bullets = Array.isArray(data.bullets) ? data.bullets : null
+        setAiSummary(summary)
+        setAiBullets(bullets)
+
+        if (autoApply) {
+          // attempt to extract a paragraph from the summary: split on double newlines
+          let paragraph = ''
+          if (typeof summary === 'string'){
+            const parts = summary.split('\n\n').map(p=>p.trim()).filter(Boolean)
+            // the first part might be the type line; if there's more than one part use the 2nd as paragraph
+            paragraph = parts.length > 1 ? parts.slice(1).join('\n\n') : parts[0] ?? ''
+          }
+
+          setResult((prev:any)=>{
+            if (!prev) return prev
+            const mergedAffixes = prev.affixes ? [...prev.affixes] : []
+            if (bullets && bullets.length) {
+              // avoid exact duplicates
+              bullets.forEach((b:string)=>{ if (!mergedAffixes.includes(b)) mergedAffixes.push(b) })
+            }
+            return { ...prev, description: paragraph || prev.description, affixes: mergedAffixes }
+          })
+        }
       }
     }catch(e:any){
       setAiError(String(e?.message ?? e))
