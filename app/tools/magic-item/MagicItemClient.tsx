@@ -540,8 +540,25 @@ function makeName(thing:string){
 
                       {/* Top banner (name + small subtitle) */}
                       <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-[92%] pointer-events-none">
-                        <div className="bg-white rounded-t-xl border-b-2 border-amber-200 text-center py-3 shadow-sm pointer-events-auto">
-                          <div className="text-4xl font-serif font-extrabold text-red-900 tracking-wide drop-shadow-md" style={{fontFamily: "'Cinzel', Georgia, serif"}}>{result.name}</div>
+                        {/* decorative ribbon SVG behind the banner text */}
+                        <div className="ribbon" aria-hidden>
+                          <svg viewBox="0 0 100 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                              <linearGradient id="rg" x1="0" x2="1">
+                                <stop offset="0" stopColor="#fff8ef" />
+                                <stop offset="1" stopColor="#ffe9d6" />
+                              </linearGradient>
+                            </defs>
+                            <path d="M0 8 C18 0 82 0 100 8 L100 24 C82 32 18 32 0 24 Z" fill="url(#rg)" stroke="#e6c0a0" strokeWidth="1.2"/>
+                            {/* small left tail */}
+                            <path d="M6 22 L0 28 L6 18" fill="#f7e9db" stroke="#e6c0a0" strokeWidth="0.8"/>
+                            {/* small right tail */}
+                            <path d="M94 22 L100 28 L94 18" fill="#f7e9db" stroke="#e6c0a0" strokeWidth="0.8"/>
+                          </svg>
+                        </div>
+
+                        <div className="bg-transparent text-center py-3 pointer-events-auto">
+                          <div className="text-4xl fantasy-title">{result.name}</div>
                           <div className="text-sm text-gray-600 italic mt-1">{
                             (() => {
                               const desc = result.description ?? ''
