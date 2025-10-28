@@ -452,6 +452,121 @@ function makeName(thing:string){
     }finally{ setAiLoading(false) }
   }
 
+  // Export the current item as a PNG image (drawn to a canvas)
+  async function exportAsPNG(){
+    if (!result) return
+    // canvas size and scale for decent quality
+    const w = 1200
+    const h = 1500
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')!
+
+    // background parchment
+    ctx.fillStyle = '#fff6ea'
+    ctx.fillRect(0,0,w,h)
+    // inner vignette
+    const grad = ctx.createLinearGradient(0,0,0,h)
+    grad.addColorStop(0, 'rgba(255,245,238,0.95)')
+    grad.addColorStop(1, 'rgba(245,230,210,0.95)')
+    ctx.fillStyle = grad
+    ctx.fillRect(20,20,w-40,h-40)
+
+    // border
+    ctx.strokeStyle = '#b88e5a'
+    ctx.lineWidth = 12
+    roundRect(ctx, 12, 12, w-24, h-24, 24)
+    ctx.stroke()
+
+    // helper to wrap text
+    function drawWrapped(text:string, x:number, y:number, maxW:number, lineH:number, align:'left'|'center'='left', font='16px serif'){
+      ctx.font = font
+      ctx.textAlign = align === 'center' ? 'center' : 'left'
+      const words = String(text).split(/\s+/)
+      let line = ''
+      let yy = y
+      for (let n = 0; n < words.length; n++) {
+        const test = line + (line ? ' ' : '') + words[n]
+        const metrics = ctx.measureText(test)
+        if (metrics.width > maxW && n > 0) {
+          ctx.fillText(line, x, yy)
+          line = words[n]
+          yy += lineH
+        } else {
+          line = test
+        }
+      }
+      if (line) ctx.fillText(line, x, yy)
+      return yy + lineH
+    }
+
+    // draw title
+    ctx.fillStyle = '#4a1010'
+    ctx.font = '56px Cinzel, serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(result.name || 'Magic Item', w/2, 140)
+
+    // type line
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'
+    ctx.font = '20px Cinzel, serif'
+    ctx.fillText(result.typeLine ?? (result.description ?? ''), w/2, 180)
+
+    // center icon/art (emoji)
+    ctx.font = '140px serif'
+    ctx.fillText(CATEGORY_ICONS[result.category] ?? themeIcon(result.theme), w/2, 360)
+
+    // description block
+    ctx.fillStyle = '#1f2937'
+    ctx.font = '18px Georgia, serif'
+    let y = 440
+    ctx.textAlign = 'left'
+    y = drawWrapped(result.description ?? '', 120, y, w-240, 28, 'left', '18px Georgia, serif')
+
+    // affixes
+    ctx.font = '16px Georgia, serif'
+    ctx.fillStyle = '#111827'
+    y += 12
+    const affs:string[] = result.affixes ?? []
+    for (let i=0;i<affs.length;i++){
+      const bullet = `• ${affs[i]}`
+      y = drawWrapped(bullet, 140, y, w-280, 24, 'left', '16px Georgia, serif')
+      y += 6
+    }
+
+    // flavor at bottom
+    if (result.flavor){
+      ctx.textAlign = 'center'
+      ctx.font = '20px Georgia, serif'
+      ctx.fillStyle = 'rgba(55,65,81,0.8)'
+      ctx.fillText(`“${result.flavor}”`, w/2, h-120)
+    }
+
+    // helper to round rect
+    function roundRect(ctx: CanvasRenderingContext2D, x:number, y:number, width:number, height:number, radius:number){
+      ctx.beginPath()
+      ctx.moveTo(x+radius, y)
+      ctx.arcTo(x+width, y, x+width, y+height, radius)
+      ctx.arcTo(x+width, y+height, x, y+height, radius)
+      ctx.arcTo(x, y+height, x, y, radius)
+      ctx.arcTo(x, y, x+width, y, radius)
+      ctx.closePath()
+    }
+
+    // download
+    canvas.toBlob((blob)=>{
+      if (!blob) return
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${(result.name || 'magic-item').replace(/[^a-z0-9-_\.]/gi,'_')}.png`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    }, 'image/png')
+  }
+
   return (
     <div className="p-6 bg-gray-50 rounded-lg space-y-6">
       <h2 className="text-2xl font-bold">Magic Item Generator</h2>
@@ -568,49 +683,30 @@ function makeName(thing:string){
                       {/* subtle inner parchment rim */}
                       <div className="absolute -inset-2 rounded-xl pointer-events-none" style={{boxShadow: 'inset 0 0 0 6px rgba(255,245,238,0.6)'}}></div>
 
-                      {/* Top banner (name + small subtitle) */}
-                      <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-[92%] pointer-events-none">
-                        {/* decorative ribbon SVG behind the banner text */}
-                        <div className="ribbon" aria-hidden>
-                          <svg viewBox="0 0 100 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                              <linearGradient id="rg" x1="0" x2="1">
-                                <stop offset="0" stopColor="#fff8ef" />
-                                <stop offset="1" stopColor="#ffe9d6" />
-                              </linearGradient>
-                            </defs>
-                            <path d="M0 8 C18 0 82 0 100 8 L100 24 C82 32 18 32 0 24 Z" fill="url(#rg)" stroke="#e6c0a0" strokeWidth="1.2"/>
-                            {/* small left tail */}
-                            <path d="M6 22 L0 28 L6 18" fill="#f7e9db" stroke="#e6c0a0" strokeWidth="0.8"/>
-                            {/* small right tail */}
-                            <path d="M94 22 L100 28 L94 18" fill="#f7e9db" stroke="#e6c0a0" strokeWidth="0.8"/>
-                          </svg>
-                        </div>
+                      {/* Header (name + subtitle) - banner removed for a simpler look */}
+                      <div className="text-center mb-4">
+                        <input
+                          className="mx-auto block w-11/12 text-4xl fantasy-title text-rose-900 font-extrabold bg-transparent border-none focus:outline-none text-center"
+                          value={result.name}
+                          onChange={(e)=>updateResult({ name: e.target.value })}
+                        />
 
-                        <div className="bg-transparent text-center py-3 pointer-events-auto">
-                          <input
-                            className="mx-auto block w-11/12 text-4xl fantasy-title text-rose-900 font-extrabold bg-transparent border-none focus:outline-none text-center"
-                            value={result.name}
-                            onChange={(e)=>updateResult({ name: e.target.value })}
-                          />
+                        <input
+                          className="mt-1 block mx-auto w-10/12 text-sm italic text-gray-600 bg-transparent border-none focus:outline-none text-center"
+                          value={result.typeLine ?? (() => {
+                            const desc = result.description ?? ''
+                            if (desc.startsWith('Wondrous')) return 'Wondrous item'
+                            if (desc.includes('—')) return `${desc.split('—')[0].trim()}, ${String(result.rarity ?? '').toLowerCase()}`
+                            return `${String(result.rarity ?? '')}`
+                          })()}
+                          onChange={(e)=>updateResult({ typeLine: e.target.value })}
+                        />
 
-                          <input
-                            className="mt-1 block mx-auto w-10/12 text-sm italic text-gray-600 bg-transparent border-none focus:outline-none text-center"
-                            value={result.typeLine ?? (() => {
-                              const desc = result.description ?? ''
-                              if (desc.startsWith('Wondrous')) return 'Wondrous item'
-                              if (desc.includes('—')) return `${desc.split('—')[0].trim()}, ${String(result.rarity ?? '').toLowerCase()}`
-                              return `${String(result.rarity ?? '')}`
-                            })()}
-                            onChange={(e)=>updateResult({ typeLine: e.target.value })}
-                          />
-
-                          <div className="text-xs text-gray-500 mt-2">
-                            <label className="inline-flex items-center gap-2">
-                              <input type="checkbox" className="form-checkbox" checked={!!result.attunement} onChange={(e)=>updateResult({ attunement: e.target.checked })} />
-                              <span>{result.attunement ? 'Requires attunement' : 'No attunement required'}</span>
-                            </label>
-                          </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          <label className="inline-flex items-center gap-2">
+                            <input type="checkbox" className="form-checkbox" checked={!!result.attunement} onChange={(e)=>updateResult({ attunement: e.target.checked })} />
+                            <span>{result.attunement ? 'Requires attunement' : 'No attunement required'}</span>
+                          </label>
                         </div>
                       </div>
 
@@ -682,6 +778,7 @@ function makeName(thing:string){
                             {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
                           </Button>
                           <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
+                          <Button variant="primary" onClick={exportAsPNG} className="ml-2">Generate PNG</Button>
                         </div>
                       </div>
                 </div>
