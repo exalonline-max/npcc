@@ -462,7 +462,8 @@ function makeName(thing:string){
     setImageError(null)
     setGeneratedImageUrl(null)
     try{
-      const r = await fetch('/api/magic-item/render', {
+      // call the item-focused render endpoint (renders the item itself, e.g., the sword)
+      const r = await fetch('/api/magic-item/render-item', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ item: result }),
