@@ -297,6 +297,8 @@ export default function MagicItemClient(){
   const [aiBullets, setAiBullets] = React.useState<string[] | null>(null)
   const [aiError, setAiError] = React.useState<string | null>(null)
 
+  // no wild-magic loading — "Make it weird" is temporarily removed
+
   // helper to update the current result object
   function updateResult(patch: Record<string, any>){
     setResult((prev:any) => prev ? { ...prev, ...patch } : prev)
@@ -327,8 +329,6 @@ export default function MagicItemClient(){
       return { ...prev, affixes: aff }
     })
   }
-
-  // no wild-magic loading — "Make it weird" is temporarily removed
 
 function makeName(thing:string){
   return dndName(thing)
@@ -382,6 +382,7 @@ function makeName(thing:string){
   // previously could attach "weird" effects; currently disabled
     // set a quick immediate preview while we ask the AI to polish
     setResult(base)
+  // preview only — AI enhance is manual now (use Enhance (AI) button)
   }
 
   async function copyResultText(){
@@ -567,37 +568,49 @@ function makeName(thing:string){
                       {/* subtle inner parchment rim */}
                       <div className="absolute -inset-2 rounded-xl pointer-events-none" style={{boxShadow: 'inset 0 0 0 6px rgba(255,245,238,0.6)'}}></div>
 
-                      {/* Simple header (no banner) - editable fields */}
-                      <div className="mb-3">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <input
-                              className="text-3xl fantasy-title bg-transparent border-none focus:outline-none"
-                              value={result.name}
-                              onChange={(e)=>updateResult({ name: e.target.value })}
-                            />
-                            <span className={`text-xs font-semibold px-2 py-1 rounded ${RARITY_BADGE_CLASSES[result.rarity ?? 'Common'] || 'bg-gray-200 text-gray-800'}`}>{result.rarity}</span>
-                          </div>
-                          <div className="text-xs text-gray-600">
+                      {/* Top banner (name + small subtitle) */}
+                      <div className="absolute left-1/2 -translate-x-1/2 -top-8 w-[92%] pointer-events-none">
+                        {/* decorative ribbon SVG behind the banner text */}
+                        <div className="ribbon" aria-hidden>
+                          <svg viewBox="0 0 100 32" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                              <linearGradient id="rg" x1="0" x2="1">
+                                <stop offset="0" stopColor="#fff8ef" />
+                                <stop offset="1" stopColor="#ffe9d6" />
+                              </linearGradient>
+                            </defs>
+                            <path d="M0 8 C18 0 82 0 100 8 L100 24 C82 32 18 32 0 24 Z" fill="url(#rg)" stroke="#e6c0a0" strokeWidth="1.2"/>
+                            {/* small left tail */}
+                            <path d="M6 22 L0 28 L6 18" fill="#f7e9db" stroke="#e6c0a0" strokeWidth="0.8"/>
+                            {/* small right tail */}
+                            <path d="M94 22 L100 28 L94 18" fill="#f7e9db" stroke="#e6c0a0" strokeWidth="0.8"/>
+                          </svg>
+                        </div>
+
+                        <div className="bg-transparent text-center py-3 pointer-events-auto">
+                          <input
+                            className="mx-auto block w-11/12 text-4xl fantasy-title text-rose-900 font-extrabold bg-transparent border-none focus:outline-none text-center"
+                            value={result.name}
+                            onChange={(e)=>updateResult({ name: e.target.value })}
+                          />
+
+                          <input
+                            className="mt-1 block mx-auto w-10/12 text-sm italic text-gray-600 bg-transparent border-none focus:outline-none text-center"
+                            value={result.typeLine ?? (() => {
+                              const desc = result.description ?? ''
+                              if (desc.startsWith('Wondrous')) return 'Wondrous item'
+                              if (desc.includes('—')) return `${desc.split('—')[0].trim()}, ${String(result.rarity ?? '').toLowerCase()}`
+                              return `${String(result.rarity ?? '')}`
+                            })()}
+                            onChange={(e)=>updateResult({ typeLine: e.target.value })}
+                          />
+
+                          <div className="text-xs text-gray-500 mt-2">
                             <label className="inline-flex items-center gap-2">
                               <input type="checkbox" className="form-checkbox" checked={!!result.attunement} onChange={(e)=>updateResult({ attunement: e.target.checked })} />
                               <span>{result.attunement ? 'Requires attunement' : 'No attunement required'}</span>
                             </label>
                           </div>
-                        </div>
-
-                        {/* type / subtitle editable */}
-                        <div className="mt-2 text-sm italic text-gray-700">
-                          <input
-                            className="bg-transparent border-b border-gray-200 focus:outline-none text-sm italic w-full"
-                            value={result.typeLine ?? (() => {
-                              const desc = result.description ?? ''
-                              if (desc.startsWith('Wondrous')) return 'Wondrous item'
-                              if (desc.includes('—')) return desc.split('—')[0].trim()
-                              return ''
-                            })()}
-                            onChange={(e)=>updateResult({ typeLine: e.target.value })}
-                          />
                         </div>
                       </div>
 
@@ -609,64 +622,58 @@ function makeName(thing:string){
                         </div>
 
                         {/* Parchment flavor box (flavor moved to bottom of card) */}
-                            <div className="mt-6 mx-6 bg-white/95 border rounded-md p-4" style={{boxShadow: 'inset 0 0 0 6px rgba(245,238,224,0.6)'}}>
-                              {/* editable stat/description */}
-                              <div className="mt-3 text-sm text-gray-800 text-center">
-                                {(() => {
-                                  const desc = result.description ?? ''
-                                  const computedType = result.typeLine ?? (desc.startsWith('Wondrous') ? 'Wondrous item' : (desc.includes('—') ? desc.split('—')[0].trim() : ''))
-                                  const right = desc.includes('—') ? desc.split('—').slice(1).join('—').trim() : (desc.startsWith('Wondrous') ? desc : desc)
-                                  return (
-                                    <div>
-                                      <textarea
-                                        className="w-full resize-none bg-transparent border border-gray-200 rounded px-2 py-1 text-sm text-center"
-                                        rows={2}
-                                        value={right}
-                                        onChange={(e)=>{
-                                          const newRight = e.target.value
-                                          if (computedType) {
-                                            updateResult({ description: `${computedType} — ${newRight}`, typeLine: computedType })
-                                          } else {
-                                            updateResult({ description: newRight })
-                                          }
-                                        }}
-                                      />
-                                    </div>
-                                  )
-                                })()}
-                              </div>
-                            </div>
+                        <div className="mt-6 mx-6 bg-white/95 border rounded-md p-4" style={{boxShadow: 'inset 0 0 0 6px rgba(245,238,224,0.6)'}}>
+                          {/* editable stat/description */}
+                          <div className="mt-3 text-sm text-gray-800 text-center">
+                            {(() => {
+                              const desc = result.description ?? ''
+                              const computedType = result.typeLine ?? (desc.startsWith('Wondrous') ? 'Wondrous item' : (desc.includes('—') ? desc.split('—')[0].trim() : ''))
+                              const right = desc.includes('—') ? desc.split('—').slice(1).join('—').trim() : (desc.startsWith('Wondrous') ? desc : desc)
+                              return (
+                                <div>
+                                  <textarea
+                                    className="w-full resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-sm text-center shadow-sm focus:ring-1 focus:ring-amber-200"
+                                    rows={3}
+                                    value={right}
+                                    onChange={(e)=>{
+                                      const newRight = e.target.value
+                                      if (computedType) {
+                                        updateResult({ description: `${computedType} — ${newRight}`, typeLine: computedType })
+                                      } else {
+                                        updateResult({ description: newRight })
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              )
+                            })()}
+                          </div>
+                        </div>
 
                         {/* Rules / affixes list (bottom panel) */}
                         <div className="mt-4 mx-6 bg-white/95 border rounded-b-md p-3">
-                          <div className="space-y-2 text-sm">
+                          <div className="space-y-3 text-sm">
                             {(result.affixes || []).map((a:any, i:number)=> (
-                              <div key={i} className="flex items-start gap-2">
+                              <div key={i} className="flex items-start gap-3">
                                 <textarea
-                                  className="flex-1 resize-none bg-transparent border border-gray-200 rounded px-2 py-1 text-sm"
-                                  rows={2}
+                                  className="flex-1 resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm"
+                                  rows={3}
                                   value={a}
                                   onChange={(e)=>setAffix(i, e.target.value)}
                                 />
-                                <button type="button" className="text-sm text-red-600" onClick={()=>removeAffix(i)}>Remove</button>
+                                <button type="button" className="ml-2 text-sm text-red-600 hover:text-red-800" onClick={()=>removeAffix(i)}>Remove</button>
                               </div>
                             ))}
 
                             <div>
-                              <button type="button" className="btn" onClick={addAffix}>+ Add affix</button>
+                              <Button variant="secondary" onClick={addAffix} className="mt-1">+ Add affix</Button>
                             </div>
                           </div>
 
                           {/* Flavor quote moved to bottom of card (inside rules panel) */}
-                          <div className="mt-3">
-                            <textarea
-                              className="w-full resize-none bg-transparent border border-gray-200 rounded px-2 py-1 italic text-center text-sm text-gray-700"
-                              rows={2}
-                              value={result.flavor ?? ''}
-                              placeholder="Flavor text..."
-                              onChange={(e)=>updateResult({ flavor: e.target.value })}
-                            />
-                          </div>
+                          {result.flavor && (
+                            <div className="mt-3 text-center italic text-gray-700 px-3 py-2 bg-white/5 rounded-md">{`“${result.flavor}”`}</div>
+                          )}
                         </div>
 
                         {/* Bottom actions row */}
