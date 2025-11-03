@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Button from '../../../components/ui/button'
+import MagicItemForm from './MagicItemForm'
 
 
 const WEAPON_TYPES = ['Sword','Axe','Dagger','Mace','Bow','Crossbow','Spear','Staff','Warhammer','Greatsword']
@@ -296,9 +297,11 @@ export default function MagicItemClient(){
   const [aiSummary, setAiSummary] = React.useState<string | null>(null)
   const [aiBullets, setAiBullets] = React.useState<string[] | null>(null)
   const [aiError, setAiError] = React.useState<string | null>(null)
-  const [imageLoading, setImageLoading] = React.useState<boolean>(false)
-  const [generatedImageUrl, setGeneratedImageUrl] = React.useState<string | null>(null)
-  const [imageError, setImageError] = React.useState<string | null>(null)
+  // image generation removed for now
+  // inline edit states
+  const [editingName, setEditingName] = React.useState<boolean>(false)
+  const [editingType, setEditingType] = React.useState<boolean>(false)
+  const [editingDesc, setEditingDesc] = React.useState<boolean>(false)
 
   // no wild-magic loading — "Make it weird" is temporarily removed
 
@@ -425,25 +428,49 @@ function makeName(thing:string){
       if (!r.ok || data?.error) {
         setAiError(data?.error || `Status ${r.status}`)
       } else {
-        const summary = data.summary ?? (typeof data === 'string' ? data : null)
-        const bullets = Array.isArray(data.bullets) ? data.bullets : null
-        setAiSummary(summary)
-        setAiBullets(bullets)
+        const raw = (data.summary ?? (typeof data === 'string' ? data : '')).toString().trim()
+        // try to extract bullets from either the dedicated field or from the summary text
+        let bullets: string[] = Array.isArray(data.bullets) ? data.bullets.slice() : []
+
+        // split into non-empty lines for parsing
+  const lines = raw.split(/\r?\n/).map((l: string) => l.trim())
+        // attempt to extract inline bullets from summary if explicit bullets not provided
+        if ((!bullets || bullets.length === 0) && lines.length) {
+          for (const ln of lines) {
+            if (!ln) continue
+            // common bullet markers
+            const m = ln.match(/^[-•*]\s+(.*)$/)
+            const n = ln.match(/^\d+\.\s+(.*)$/)
+            if (m) bullets.push(m[1].trim())
+            else if (n) bullets.push(n[1].trim())
+          }
+        }
+
+        // extract a lead paragraph: the first block of text separated by blank lines that is not a bullet
+        const blocks = raw.split(/\n\s*\n/).map((b: string) => b.trim()).filter(Boolean)
+        let paragraph = ''
+        if (blocks.length) {
+          // prefer the first block that doesn't look like a bullet list
+          paragraph = blocks.find((b: string) => !/^([-•*]|\d+\.)/m.test(b)) || blocks[0]
+        }
+
+        // sanitize & format for display: simple paragraph + bullet list
+        const esc = (s:string)=> s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        const htmlParts: string[] = []
+        if (paragraph) htmlParts.push(`<p class="mb-2">${esc(paragraph).replace(/\n/g,'<br/>')}</p>`)
+        if (bullets && bullets.length){
+          htmlParts.push('<ul class="list-disc pl-5">' + bullets.map(b=>`<li>${esc(b)}</li>`).join('') + '</ul>')
+        }
+
+        const formatted = htmlParts.join('\n') || esc(raw)
+        setAiSummary(formatted)
+        setAiBullets(bullets && bullets.length ? bullets : null)
 
         if (autoApply) {
-          // attempt to extract a paragraph from the summary: split on double newlines
-          let paragraph = ''
-          if (typeof summary === 'string'){
-            const parts = summary.split('\n\n').map(p=>p.trim()).filter(Boolean)
-            // the first part might be the type line; if there's more than one part use the 2nd as paragraph
-            paragraph = parts.length > 1 ? parts.slice(1).join('\n\n') : parts[0] ?? ''
-          }
-
           setResult((prev:any)=>{
             if (!prev) return prev
             const mergedAffixes = prev.affixes ? [...prev.affixes] : []
             if (bullets && bullets.length) {
-              // avoid exact duplicates
               bullets.forEach((b:string)=>{ if (!mergedAffixes.includes(b)) mergedAffixes.push(b) })
             }
             return { ...prev, description: paragraph || prev.description, affixes: mergedAffixes }
@@ -455,48 +482,6 @@ function makeName(thing:string){
     }finally{ setAiLoading(false) }
   }
 
-  // Export the current item as a PNG image via AI image generation and display it below.
-  async function exportAsPNG(){
-    if (!result) return
-    setImageLoading(true)
-    setImageError(null)
-    setGeneratedImageUrl(null)
-    try{
-      // call the item-focused render endpoint (renders the item itself, e.g., the sword)
-      const r = await fetch('/api/magic-item/render-item', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item: result }),
-      })
-      const data = await r.json()
-      if (!r.ok || data?.error) {
-        // if AI not available, fall back to local canvas render
-        setImageError(data?.error || `Status ${r.status}`)
-        try{
-          const w = 1200; const h = 1500
-          const canvas = document.createElement('canvas')
-          canvas.width = w; canvas.height = h
-          const ctx = canvas.getContext('2d')!
-          ctx.fillStyle = '#fff6ea'; ctx.fillRect(0,0,w,h)
-          ctx.fillStyle = '#4a1010'; ctx.font = '56px Cinzel, serif'; ctx.textAlign = 'center'
-          ctx.fillText(result.name || 'Magic Item', w/2, 140)
-          const url = canvas.toDataURL('image/png')
-          setGeneratedImageUrl(url)
-        }catch(e:any){ setImageError(String(e?.message ?? e)) }
-      } else {
-        const b64 = data.b64
-        if (b64) {
-          const url = `data:image/png;base64,${b64}`
-          setGeneratedImageUrl(url)
-        } else {
-          setImageError('No image returned')
-        }
-      }
-    }catch(e:any){
-      setImageError(String(e?.message ?? e))
-    }finally{ setImageLoading(false) }
-  }
-
   return (
     <div className="p-6 bg-gray-50 rounded-lg space-y-6">
       <h2 className="text-2xl font-bold">Magic Item Generator</h2>
@@ -504,6 +489,9 @@ function makeName(thing:string){
       <div className="grid md:grid-cols-3 gap-6" style={{display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem'}}>
         <div className="md:col-span-1" style={{minWidth: 260}}>
           <div className="grid grid-cols-1 gap-6">
+            <div>
+              <MagicItemForm onPick={(item:any)=>{ setResult(item) }} />
+            </div>
             <div>
           <div className="mb-3">
             <button
@@ -614,23 +602,40 @@ function makeName(thing:string){
                       <div className="absolute -inset-2 rounded-xl pointer-events-none" style={{boxShadow: 'inset 0 0 0 6px rgba(255,245,238,0.6)'}}></div>
 
                       {/* Header (name + subtitle) - banner removed for a simpler look */}
-                      <div className="text-center mb-4">
-                        <input
-                          className="mx-auto block w-11/12 text-4xl fantasy-title text-rose-900 font-extrabold bg-transparent border-none focus:outline-none text-center"
-                          value={result.name}
-                          onChange={(e)=>updateResult({ name: e.target.value })}
-                        />
+                      <div className="text-center mb-2">
+                        {/* Name: display text, click to edit */}
+                        {editingName ? (
+                          <input
+                            className="mx-auto block w-11/12 text-4xl fantasy-title text-rose-900 font-extrabold bg-transparent border-b border-amber-200 focus:outline-none text-center"
+                            value={result.name}
+                            onChange={(e)=>updateResult({ name: e.target.value })}
+                            onBlur={()=>setEditingName(false)}
+                            autoFocus
+                          />
+                        ) : (
+                          <div className="cursor-text" onClick={()=>setEditingName(true)}>
+                            <div className="text-4xl fantasy-title text-rose-900 font-extrabold">{result.name}</div>
+                          </div>
+                        )}
 
-                        <input
-                          className="mt-1 block mx-auto w-10/12 text-sm italic text-gray-600 bg-transparent border-none focus:outline-none text-center"
-                          value={result.typeLine ?? (() => {
-                            const desc = result.description ?? ''
-                            if (desc.startsWith('Wondrous')) return 'Wondrous item'
-                            if (desc.includes('—')) return `${desc.split('—')[0].trim()}, ${String(result.rarity ?? '').toLowerCase()}`
-                            return `${String(result.rarity ?? '')}`
-                          })()}
-                          onChange={(e)=>updateResult({ typeLine: e.target.value })}
-                        />
+                        {/* small pill with type and rarity below the name; click type to edit */}
+                        <div className="mt-2 inline-flex items-center gap-3">
+                          {editingType ? (
+                            <input
+                              className="text-sm italic text-gray-600 bg-transparent border-b border-amber-200 focus:outline-none text-center px-1"
+                              value={result.typeLine ?? ''}
+                              onChange={(e)=>updateResult({ typeLine: e.target.value })}
+                              onBlur={()=>setEditingType(false)}
+                              autoFocus
+                            />
+                          ) : (
+                            <div onClick={()=>setEditingType(true)} className="text-sm italic text-gray-700 cursor-text px-2">
+                              {result.typeLine ?? (()=>{ const d = result.description ?? ''; if (d.startsWith('Wondrous')) return 'Wondrous item'; if (d.includes('—')) return `${d.split('—')[0].trim()}`; return '' })() }
+                            </div>
+                          )}
+
+                          <span className={`text-xs font-semibold px-2 py-1 rounded ${RARITY_BADGE_CLASSES[result.rarity ?? 'Common'] || 'bg-gray-200 text-gray-800'}`}>{result.rarity}</span>
+                        </div>
 
                         <div className="text-xs text-gray-500 mt-2">
                           <label className="inline-flex items-center gap-2">
@@ -655,21 +660,30 @@ function makeName(thing:string){
                               const desc = result.description ?? ''
                               const computedType = result.typeLine ?? (desc.startsWith('Wondrous') ? 'Wondrous item' : (desc.includes('—') ? desc.split('—')[0].trim() : ''))
                               const right = desc.includes('—') ? desc.split('—').slice(1).join('—').trim() : (desc.startsWith('Wondrous') ? desc : desc)
+                              // show description as text unless user wants to edit
                               return (
                                 <div>
-                                  <textarea
-                                    className="w-full resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-sm text-center shadow-sm focus:ring-1 focus:ring-amber-200"
-                                    rows={3}
-                                    value={right}
-                                    onChange={(e)=>{
-                                      const newRight = e.target.value
-                                      if (computedType) {
-                                        updateResult({ description: `${computedType} — ${newRight}`, typeLine: computedType })
-                                      } else {
-                                        updateResult({ description: newRight })
-                                      }
-                                    }}
-                                  />
+                                  {editingDesc ? (
+                                    <textarea
+                                      className="w-full resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-sm text-center shadow-sm focus:ring-1 focus:ring-amber-200"
+                                      rows={4}
+                                      value={right}
+                                      onChange={(e)=>{
+                                        const newRight = e.target.value
+                                        if (computedType) {
+                                          updateResult({ description: `${computedType} — ${newRight}`, typeLine: computedType })
+                                        } else {
+                                          updateResult({ description: newRight })
+                                        }
+                                      }}
+                                      onBlur={()=>setEditingDesc(false)}
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    <div className="cursor-text" onClick={()=>setEditingDesc(true)}>
+                                      <div className="whitespace-pre-wrap">{right || <span className="text-gray-400">Click to edit description</span>}</div>
+                                    </div>
+                                  )}
                                 </div>
                               )
                             })()}
@@ -708,7 +722,6 @@ function makeName(thing:string){
                             {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
                           </Button>
                           <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
-                          <Button variant="primary" onClick={exportAsPNG} className="ml-2">Generate PNG</Button>
                         </div>
                       </div>
                 </div>
@@ -729,16 +742,7 @@ function makeName(thing:string){
                 </div>
               )}
             </div>
-            {/* Generated image preview (from AI) */}
-            <div className="mt-4">
-              {imageError && <div className="text-sm text-red-600">Image error: {imageError}</div>}
-              {imageLoading && <div className="text-sm text-gray-600">Generating image…</div>}
-              {generatedImageUrl && (
-                <div className="mt-3 flex justify-center">
-                  <img src={generatedImageUrl} alt="Generated item" className="max-w-full w-[480px] rounded-md shadow-lg border" />
-                </div>
-              )}
-            </div>
+            {/* Image generation/preview removed */}
           </div>
         </div>
     </div>
