@@ -40,8 +40,9 @@ function CircleGrid({ title, options, value, onChange }:{
 
 export default function MagicItemClient(){
   const [category, setCategory] = React.useState<'weapon'|'armor'|'trinket'|'scroll'>('weapon')
-  const [weaponType, setWeaponType] = React.useState<typeof WEAPON_TYPES[number]>('Sword')
-  const [armorType, setArmorType] = React.useState<typeof ARMOR_TYPES[number]>('Light Armor')
+  // use simple string state here to avoid strict union mismatch when wired from other components
+  const [weaponType, setWeaponType] = React.useState<string>('Sword')
+  const [armorType, setArmorType] = React.useState<string>('Light Armor')
   const [copiedId, setCopiedId] = React.useState<string | null>(null)
 
   // ... other state and logic
