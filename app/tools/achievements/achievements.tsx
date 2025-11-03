@@ -1,4 +1,4 @@
-// app/achievements/page.tsx
+// app/tools/achievements/achievements.tsx
 "use client";
 import React from "react";
 
@@ -18,6 +18,7 @@ function saveStore(store: any) {
 }
 function uid() { return Math.random().toString(36).slice(2); }
 function nowISO() { return new Date().toISOString(); }
+function fmtDate(iso?: string) { if (!iso) return "—"; try { return new Date(iso).toLocaleString(); } catch { return iso; } }
 
 // ---------------- Types (shape only for clarity) ----------------
 // type Achievement = { id: string; title: string; description?: string; points: number; tags: string[]; visible: boolean; createdAt: string; };
@@ -27,6 +28,10 @@ function nowISO() { return new Date().toISOString(); }
 // Small UI helpers
 function Badge({ children }: { children: React.ReactNode }) {
   return <span className="badge mr-1">{children}</span>;
+}
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800 mr-2">{children}</span>;
 }
 
 export default function AchievementsPage() {
@@ -46,6 +51,10 @@ export default function AchievementsPage() {
     const byQ = !filter.q || (a.title + " " + (a.description || "")).toLowerCase().includes(filter.q.toLowerCase());
     return byTag && byQ;
   });
+
+  const achievementsCount = (store.achievements || []).length;
+  const playersCount = (store.players || []).length;
+  const awardsCount = (store.awards || []).length;
 
   // ----- CRUD: Achievements -----
   function resetForm() {
@@ -73,6 +82,7 @@ export default function AchievementsPage() {
     setForm({ title: a.title, description: a.description || "", points: a.points, tags: (a.tags || []).join(", "), visible: !!a.visible });
   }
   function deleteAchievement(id: string) {
+    if (!confirm("Delete this achievement? This will also remove awards referencing it.")) return;
     setStore((s: any) => ({
       ...s,
       achievements: s.achievements.filter((a: any) => a.id !== id),
@@ -90,6 +100,7 @@ export default function AchievementsPage() {
     setNewPlayer("");
   }
   function removePlayer(id: string) {
+    if (!confirm("Remove player and all their awards?")) return;
     setStore((s: any) => ({ ...s, players: s.players.filter((p: any) => p.id !== id), awards: s.awards.filter((w: any) => w.playerId !== id) }));
   }
 
@@ -151,15 +162,23 @@ export default function AchievementsPage() {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-[360px_1fr] p-4">
+    <div className="grid gap-6 md:grid-cols-[380px_1fr] p-4">
       {/* LEFT: Controls */}
       <section className="card bg-base-100 shadow-sm border">
         <div className="card-body">
-          <div className="flex items-center justify-between">
-            <h2 className="card-title">Achievements</h2>
-            <div className="flex gap-2">
-              <button className="btn btn-sm" onClick={exportJson}>Export</button>
-              <label className="btn btn-sm btn-ghost">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="card-title">Achievements</h2>
+              <p className="text-sm opacity-70 mt-1">Create awards, track points per player, and export/import your progress.</p>
+              <div className="mt-2 flex items-center gap-2">
+                <Pill>{achievementsCount} achievements</Pill>
+                <Pill>{playersCount} players</Pill>
+                <Pill>{awardsCount} awards</Pill>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-1">
+              <button className="btn btn-sm" onClick={exportJson} aria-label="Export achievements">Export</button>
+              <label className="btn btn-sm btn-ghost" aria-label="Import achievements">
                 Import <input type="file" className="hidden" accept="application/json" onChange={importJson} />
               </label>
             </div>
@@ -167,11 +186,13 @@ export default function AchievementsPage() {
 
           {/* Create / Edit */}
           <form onSubmit={submitAchievement} className="space-y-2">
-            <input className="input input-bordered w-full" placeholder="Title" value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} required />
-            <textarea className="textarea textarea-bordered w-full" placeholder="Description" rows={3} value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} />
+            <label className="label"><span className="label-text">Title</span></label>
+            <input aria-label="Achievement title" className="input input-bordered w-full" placeholder="Title" value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} required />
+            <label className="label"><span className="label-text">Description</span></label>
+            <textarea aria-label="Achievement description" className="textarea textarea-bordered w-full" placeholder="Description" rows={3} value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} />
             <div className="grid grid-cols-3 gap-2">
               <input type="number" min={0} className="input input-bordered" placeholder="Points" value={form.points} onChange={e=>setForm(f=>({...f,points:Number(e.target.value)||0}))} />
-              <input className="input input-bordered col-span-2" placeholder="Tags (comma-separated)" value={form.tags} onChange={e=>setForm(f=>({...f,tags:e.target.value}))} />
+              <input aria-label="Tags" className="input input-bordered col-span-2" placeholder="Tags (comma-separated)" value={form.tags} onChange={e=>setForm(f=>({...f,tags:e.target.value}))} />
             </div>
             <label className="label cursor-pointer justify-start gap-3">
               <input type="checkbox" className="checkbox" checked={form.visible} onChange={e=>setForm(f=>({...f,visible:e.target.checked}))} />
@@ -191,11 +212,11 @@ export default function AchievementsPage() {
             <button className="btn" onClick={addPlayer}>Add</button>
           </div>
           {(store.players || []).length > 0 && (
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {(store.players || []).map((p: any)=>(
-                <div key={p.id} className="flex items-center justify-between">
+                <div key={p.id} className="flex items-center gap-2 bg-base-200 px-2 py-1 rounded-full">
                   <span className="text-sm">{p.name}</span>
-                  <button className="btn btn-xs btn-ghost" onClick={()=>removePlayer(p.id)}>Remove</button>
+                  <button title={`Remove ${p.name}`} aria-label={`Remove ${p.name}`} className="btn btn-ghost btn-xs" onClick={()=>removePlayer(p.id)}>✕</button>
                 </div>
               ))}
             </div>
@@ -207,11 +228,12 @@ export default function AchievementsPage() {
       <section className="space-y-4">
         {/* Search / Filter */}
         <div className="flex items-center gap-2">
-          <input className="input input-bordered w-full" placeholder="Search achievements..." value={filter.q} onChange={e=>setFilter(f=>({...f,q:e.target.value}))} />
-          <select className="select select-bordered" value={filter.tag} onChange={e=>setFilter(f=>({...f,tag:e.target.value}))}>
+          <input aria-label="Search achievements" className="input input-bordered w-full" placeholder="Search achievements..." value={filter.q} onChange={e=>setFilter(f=>({...f,q:e.target.value}))} />
+          <select aria-label="Filter by tag" className="select select-bordered" value={filter.tag} onChange={e=>setFilter(f=>({...f,tag:e.target.value}))}>
             <option>All</option>
             {allTags.map(t=> <option key={t}>{t}</option>)}
           </select>
+          <div className="ml-2 text-sm opacity-70">Showing <strong>{filtered.length}</strong> / {achievementsCount}</div>
         </div>
 
         {/* Progress Summary */}
@@ -225,6 +247,7 @@ export default function AchievementsPage() {
                     <Badge>{gained} / {max} pts</Badge>
                   </div>
                   <progress className="progress w-full" value={max ? (gained/max*100) : 0} max={100}></progress>
+                  <div className="text-xs opacity-60 mt-2">Last updated: {fmtDate()}</div>
                 </div>
               </div>
             ))}
@@ -252,11 +275,11 @@ export default function AchievementsPage() {
                         {!a.visible && <span className="badge badge-outline ml-1">Hidden</span>}
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      <button className="btn btn-ghost btn-xs" onClick={()=>copy(copyText)}>Copy</button>
-                      <button className="btn btn-ghost btn-xs" onClick={()=>editAchievement(a)}>Edit</button>
-                      <button className="btn btn-ghost btn-xs" onClick={()=>deleteAchievement(a.id)}>Delete</button>
-                    </div>
+                      <div className="flex gap-1">
+                        <button className="btn btn-ghost btn-xs" onClick={()=>copy(copyText)} aria-label={`Copy ${a.title}`}>Copy</button>
+                        <button className="btn btn-ghost btn-xs" onClick={()=>editAchievement(a)} aria-label={`Edit ${a.title}`}>Edit</button>
+                        <button className="btn btn-ghost btn-xs" onClick={()=>deleteAchievement(a.id)} aria-label={`Delete ${a.title}`}>Delete</button>
+                      </div>
                   </div>
 
                   {a.description && <p className="text-sm mt-2">{a.description}</p>}
@@ -269,9 +292,9 @@ export default function AchievementsPage() {
                         {store.players.map((p: any)=>{
                           const has = !!awardedMap[p.id];
                           return has ? (
-                            <button key={p.id} className="btn btn-xs btn-success" onClick={()=>revoke(a.id, p.id)}>{p.name} ✓</button>
+                            <button key={p.id} className="btn btn-xs btn-success" onClick={()=>revoke(a.id, p.id)} aria-label={`Revoke ${a.title} from ${p.name}`}>{p.name} ✓</button>
                           ) : (
-                            <button key={p.id} className="btn btn-xs" onClick={()=>award(a.id, p.id)}>{p.name}</button>
+                            <button key={p.id} className="btn btn-xs" onClick={()=>award(a.id, p.id)} aria-label={`Award ${a.title} to ${p.name}`}>{p.name}</button>
                           )
                         })}
                       </div>
@@ -279,8 +302,11 @@ export default function AchievementsPage() {
                   )}
 
                   {/* Small footer */}
-                  <div className="mt-3 flex justify-end items-center">
-                    <button className="btn btn-sm" onClick={()=>copy(copyText)}>Copy for Discord</button>
+                  <div className="mt-3 flex justify-between items-center">
+                    <div className="text-xs opacity-60">Created: {fmtDate(a.createdAt)}</div>
+                    <div>
+                      <button className="btn btn-sm" onClick={()=>copy(copyText)}>Copy for Discord</button>
+                    </div>
                   </div>
                 </div>
               </article>
@@ -288,7 +314,7 @@ export default function AchievementsPage() {
           })}
           {filtered.length === 0 && (
             <div className="rounded-lg border border-dashed p-8 text-center text-sm opacity-70">
-              No achievements yet. Create one on the left.
+              No achievements yet. Create one on the left — or import a JSON from a previous campaign.
             </div>
           )}
         </div>
