@@ -20,6 +20,9 @@ export default function AuthNav() {
       <Link href="/tools/wild-magic" className="btn-ghost" style={{ fontWeight: 600 }}>
         Wild Magic
       </Link>
+      <Link href="/tools/achievements" className="btn-ghost" style={{ fontWeight: 600 }}>
+        Achievements
+      </Link>
       <Link href="/tools/magic-item" className="btn-ghost" style={{ fontWeight: 600 }}>
         Magic Item
       </Link>
