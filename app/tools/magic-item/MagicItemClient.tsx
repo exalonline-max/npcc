@@ -153,6 +153,14 @@ const EFFECTS = {
   },
 }
 
+const RARITY_BADGE_CLASSES: Record<string,string> = {
+  Common: 'bg-gray-200 text-gray-800',
+  Uncommon: 'bg-amber-200 text-amber-800',
+  Rare: 'bg-rose-200 text-rose-800',
+  'Very Rare': 'bg-indigo-200 text-indigo-900',
+  Legendary: 'bg-yellow-200 text-yellow-900',
+}
+
 // --- Utility helpers ---
 function rand<T>(arr:T[]): T { return arr[Math.floor(Math.random()*arr.length)] }
 function pick(arr:string[], n:number){ const pool=[...arr]; const out:string[]=[]; while(out.length<n&&pool.length){ out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]) } return out }
@@ -386,19 +394,34 @@ export default function MagicItemClient(){
           {items.map((i)=>{
             const right = i.description.includes('—') ? i.description.split('—').slice(1).join('—').trim() : i.description
             return (
-              <article key={i.id} className="card bg-base-100 shadow-sm border">
+              <article
+                key={i.id}
+                tabIndex={0}
+                role="button"
+                aria-label={`Item ${i.name}. Press Enter to copy.`}
+                onKeyDown={(e)=>{ if (e.key === 'Enter') { copyItem(i) } }}
+                className="card bg-base-100 shadow-sm border transition-transform transform hover:scale-[1.01] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-300"
+              >
                 <div className="card-body">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h4 className="card-title leading-tight">{i.name}</h4>
-                      <div className="text-sm opacity-70">{CATEGORY_ICONS[i.category]} {i.typeLine} · <span className="badge badge-ghost align-middle mr-1">{i.rarity}</span> <span className="align-middle">{themeIcon(i.theme)} {i.theme}</span>{i.attunement ? <span className="ml-2 badge badge-outline">Attunement</span> : null}</div>
+                    <div className="flex-1">
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-md bg-white/80 flex items-center justify-center text-2xl shadow-sm">{CATEGORY_ICONS[i.category]}</div>
+                        <div className="min-w-0">
+                          <h4 className="card-title leading-tight text-lg truncate">{i.name}</h4>
+                          <div className="text-sm opacity-70 truncate">{i.typeLine} · <span className={`inline-block px-2 py-0.5 rounded ${RARITY_BADGE_CLASSES[i.rarity] || 'bg-gray-200'}`}>{i.rarity}</span> <span className="ml-2">{themeIcon(i.theme)} {i.theme}</span>{i.attunement ? <span className="ml-2 inline-block px-2 py-0.5 border rounded text-xs">Attunement</span> : null}</div>
+                        </div>
+                      </div>
                     </div>
-                    <button className="btn btn-ghost btn-sm" onClick={()=>copyItem(i)}>{copiedId===i.id ? 'Copied!' : 'Copy'}</button>
+                    <div className="flex-shrink-0 flex flex-col items-end gap-2">
+                      <button className="btn btn-ghost btn-sm" onClick={()=>copyItem(i)}>{copiedId===i.id ? 'Copied!' : 'Copy'}</button>
+                      <button className="btn btn-outline btn-xs" onClick={()=>{ navigator.clipboard?.writeText(JSON.stringify(i, null, 2)); setCopiedId(i.id); setTimeout(()=>setCopiedId(null),1500) }}>JSON</button>
+                    </div>
                   </div>
 
-                  <p className="text-sm mt-2">{right}</p>
+                  <p className="text-sm mt-3 text-gray-800">{right}</p>
 
-                  <ul className="mt-3 text-sm list-disc pl-5 space-y-1">
+                  <ul className="mt-3 text-sm list-disc pl-5 space-y-1 text-gray-700">
                     {i.affixes.map((a,idx)=>(<li key={idx}>{a}</li>))}
                   </ul>
 
