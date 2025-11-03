@@ -1,23 +1,10 @@
+// Replacement implementation: Clean sidebar & polished, copyable item cards
 "use client"
 
 import React from 'react'
-import Button from '../../../components/ui/button'
-import MagicItemForm from './MagicItemForm'
 
-
+// --- Basic tables kept small & readable ---
 const WEAPON_TYPES = ['Sword','Axe','Dagger','Mace','Bow','Crossbow','Spear','Staff','Warhammer','Greatsword']
-const WEAPON_ICONS: Record<string,string> = {
-  Sword: '🗡️',
-  Axe: '🪓',
-  Dagger: '🗡️',
-  Mace: '🔨',
-  Bow: '🏹',
-  Crossbow: '🏹',
-  Spear: '🔱',
-  Staff: '✨',
-  Warhammer: '⚒️',
-  Greatsword: '⚔️',
-}
 const ARMOR_TYPES = ['Light Armor','Medium Armor','Heavy Armor','Shield']
 const THEMES = ['Random','Martial','Arcane','Divine','Primal','Shadow','Utility','Elemental','Fey','Celestial','Necrotic','Technomancy','Eldritch']
 const RARITIES = ['Common','Uncommon','Rare','Very Rare','Legendary']
@@ -29,15 +16,6 @@ const CATEGORY_ICONS: Record<string,string> = {
   scroll: '📜',
 }
 
-const RARITY_BADGE_CLASSES: Record<string,string> = {
-  Common: 'bg-gray-200 text-gray-800',
-  Uncommon: 'bg-amber-200 text-amber-800',
-  Rare: 'bg-rose-200 text-rose-800',
-  'Very Rare': 'bg-indigo-200 text-indigo-900',
-  Legendary: 'bg-yellow-200 text-yellow-900',
-}
-
-// D&D-style lookup tables
 const WEAPON_DAMAGE: Record<string,string> = {
   Sword: '1d8 slashing',
   Axe: '1d8 slashing',
@@ -67,7 +45,7 @@ const ATTUNE_BY_RARITY: Partial<Record<string, boolean>> = {
 
 const NAME_PREFIX = [
   'Runed','Dragonforged','Gloaming','Brightsteel','Stormbound','Oathkeeper',
-  'Wyrm-tooth','Starwrought','Grimwarden','Kindled','Moonlit','Sun-kissed'
+  'Wyrm‑tooth','Starwrought','Grimwarden','Kindled','Moonlit','Sun‑kissed'
 ]
 const NAME_SUFFIX = [
   'of Warding','of the North Wind','of Quiet Death','of the Phoenix',
@@ -83,107 +61,65 @@ const THEME_FLAVOR: Record<string,string[]> = {
   Primal: ['Bound with braided vine and tooth','Whispers of wind and beasts'],
   Shadow: ['Edges drink the light','Cold haze trails in darkness'],
   Utility: ['Fitted with clever catches and gears','Faint scent of ozone and ink'],
-  Elemental: ['Warm with residual elemental energy','Crackles faintly with heat or cold depending on mood'],
-  Fey: ['Prismatic motes dance around it','Smells faintly of wildflowers and mischief'],
-  Celestial: ['A thin halo of light clings to the item','Soft choral hum when held aloft'],
+  Elemental: ['Warm with residual elemental energy','Crackles with heat or cold'],
+  Fey: ['Prismatic motes dance around it','Smells of wildflowers and mischief'],
+  Celestial: ['A thin halo of light clings to the item','Soft choral hum when raised'],
   Necrotic: ['A cold, dry whisper follows it','Edges show faint blackened runes'],
-  Technomancy: ['Small gears tick inside when agitated','Faint scent of ozone and machine oil'],
+  Technomancy: ['Small gears tick inside when agitated','Ozone and machine oil'],
   Eldritch: ['Unnatural geometry shivers across its surface','A low, discordant chord plays when used'],
-}
-
-function themeIcon(t:string){
-  switch(t){
-    case 'Random': return '🎲'
-    case 'Arcane': return '🔮'
-    case 'Martial': return '🛡️'
-    case 'Divine': return '✨'
-    case 'Primal': return '🌿'
-    case 'Shadow': return '🌑'
-    case 'Utility': return '⚙️'
-    case 'Elemental': return '🔥'
-    case 'Fey': return '🧚'
-    case 'Celestial': return '🌟'
-    case 'Necrotic': return '☠️'
-    case 'Technomancy': return '🤖'
-    case 'Eldritch': return '🜇'
-    default: return '⚙️'
-  }
 }
 
 const EFFECTS = {
   weapon: {
     Common: [
       'Counts as magical for overcoming resistance',
-      'Balanced edge: grants a small steady bonus when used two-handed',
-      'Comfort grip: grants +1 to recovery checks after combat',
       'Once per short rest, add +1d4 damage to one hit',
       'You can draw/stow this weapon as part of the attack',
     ],
     Uncommon: [
       '+1 bonus to attack and damage rolls',
-      'Well-balanced haft: easier to maintain, reducing failure on repairs',
       'Returning (thrown): the weapon flies back to your hand',
       'When you roll a 1 on damage, reroll it once',
-      'Advantage on checks to avoid being disarmed',
     ],
     Rare: [
       '+2 bonus to attack and damage rolls',
-      'Serrated plan: on a critical, target bleeds for 1d4 until healed',
-      'Elemental Brand: while activated (bonus action), add +1d6 fire/cold/lightning to hits (10 min, 1/short rest)',
-      'Undead Bane: +1d8 radiant vs undead and emits bright light 15 ft',
+      'Elemental Brand: while activated, add +1d6 fire/cold/lightning to hits (10 min, 1/short rest)',
       'Vicious: on a critical hit, deal +2d6 damage',
-      'Defender: as a bonus action, shift up to +2 of the bonus to AC until your next turn',
     ],
     'Very Rare': [
       '+3 bonus to attack and damage rolls',
-      'Phase Edge: once per short rest, ignore 5 points of armor on a hit',
-      'Flame Tongue-like: speak command word to ignite (+2d6 fire); sheds bright light 40 ft',
       'Keen Edge: scores a critical hit on a 19–20',
       'Oathbound: once per short rest, mark a creature; first hit each turn adds +1d8 damage',
-      'Spell Storing (3 charges): cast dispel magic or blink; regains 1d3 charges at dawn',
     ],
     Legendary: [
       '+3 bonus; attacks ignore nonmagical resistance',
-      'Warden of Storms: occasionally crackles with thunder, granting thunderous bonus on hit',
-      'Sunblade-like: weapon deals radiant damage; +2d8 vs undead; daylight 30 ft',
-      'Vorpal-like edge: on a 20, deal +6d8 damage (DM adjudicates severe wound)',
+      'Sunblade‑like: weapon deals radiant damage; +2d8 vs undead; daylight 30 ft',
       'Recall: as a bonus action, the weapon teleports to your hand from up to 1 mile (same plane)',
-      'Once per long rest, cast steel wind strike (spell attack +10 / save DC 17 as appropriate)',
     ],
   },
   armor: {
     Common: [
       'Counts as magical',
-      'Light padding: reduces chafing and grants comfort in long marches',
-      'Reinforced seams: minor protection against wear and tear (reduces maintenance checks)',
       'Reduce fall damage by 1d6',
       'Advantage on saves to resist being shoved or knocked prone',
     ],
     Uncommon: [
       '+1 bonus to AC (armor or shield)',
-      'Quick-mend: once per day, minor repairs auto-stitch (cosmetic only)',
-      'Quick-strap: donning or doffing the armor takes half the usual time',
-      'Advantage on one type of save (choose STR/DEX/CON) vs environmental hazards',
+      'Quick‑strap: donning or doffing takes half the usual time',
       'Silent Straps: advantage on Stealth checks to avoid armor noise',
     ],
     Rare: [
       '+2 bonus to AC (armor or shield)',
-      'Temperature weave: grants comfort in extreme heat or cold, reducing exhaustion checks',
       'Reactive plating: once per short rest, reduce a hit by 1d8',
       'Resistance to one damage type (choose fire, cold, lightning, necrotic, radiant)',
-      'Guardian: once per short rest, impose disadvantage on an attack vs an ally within 5 ft',
     ],
     'Very Rare': [
       '+3 bonus to AC (armor or shield)',
-      'Harmonic wards: briefly grant advantage on one saving throw per short rest',
-      'Spellbound weave: while worn, grants +1 to spellcasting concentration checks',
       'Magic Ward (3 charges): reaction to add +4 to a saving throw; regains 1d3 charges at dawn',
       'You can breathe underwater and gain a swim speed equal to your speed',
     ],
     Legendary: [
       '+3 AC; critical hits against you become normal hits',
-      'Living Plate: the armor shifts to better protect vulnerable spots (DM adjudicates once/day)',
-      'Aegis of Ages: once per long rest, reflect a single spell back at its caster',
       'Bulwark: allies within 10 ft gain +1 to AC and saving throws while you are conscious',
       'Once per long rest, cast globe of invulnerability centered on you (1 minute)',
     ],
@@ -191,560 +127,290 @@ const EFFECTS = {
   trinket: {
     Common: [
       'Tool boon: +2 bonus to checks with one artisan tool',
-      'Trinket clasp: won’t fall off in water or during acrobatics',
-      'Pocket charm: small hidden compartment holds trivial items without adding weight',
       'Once per long rest, cast guidance on yourself (no concentration for 1 minute)',
       'You always know which way is north and the time until sunrise/sunset',
     ],
     Uncommon: [
-      'Cloak/Ring-like: +1 to AC and saving throws (does not stack with itself)',
-      'Subtle sigil: grants +1 to Persuasion checks in one social niche',
+      'Cloak/Ring‑like: +1 to AC and saving throws (does not stack with itself)',
       'Minor ward: grants +1 to a chosen skill while attuned',
-      'Spellcasting focus: +1 to spell attack rolls',
       'Feather Fall charm (1 charge/day)',
     ],
     Rare: [
-      'Amulet of Health-lite: your CON increases by +2 (max 20) while attuned',
-      'Echo locket: record a single short sound and play it back once per day',
-      'Boots-like: brief feather-step ability once per short rest',
-      'Boots-like: gain 10 ft bonus to movement',
-      'Wand-like (5 charges): cast a 2nd-level spell tied to theme; regains 1d4+1 charges at dawn',
+      'Amulet of Health‑lite: your CON increases by +2 (max 20) while attuned',
+      'Boots‑like: gain 10 ft bonus to movement',
+      'Wand‑like (5 charges): cast a 2nd‑level spell tied to theme; regains 1d4+1 charges at dawn',
     ],
     'Very Rare': [
       'Resistance (permanent) to one damage type of the item’s theme',
-      'Phase bead: once per long rest, ignore difficult terrain for 1 minute',
-      'Ethereal echo: once per long rest, phase briefly into ethereal plane (1 round)',
       'Once per short rest, bonus action: become invisible until end of your next turn',
       'Spell DC +1 while attuned',
     ],
     Legendary: [
-      'Once per long rest, cast a 6th-level spell tied to theme',
-      'World-anchored charm: anchors a teleport tether to a chosen pocket dimension',
-      'World-Touched: item grants a faint teleportation tether to a chosen location once per week',
+      'Once per long rest, cast a 6th‑level spell tied to theme',
       'Fate Thread: when you fail a save, turn it into a success 1/long rest',
       'You can’t be surprised while conscious',
     ],
   },
 }
 
-function pick(arr:string[], n:number){
-  const pool = [...arr]; const out:string[] = [];
-  while (out.length < n && pool.length) {
-    out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0])
+// --- Utility helpers ---
+function rand<T>(arr:T[]): T { return arr[Math.floor(Math.random()*arr.length)] }
+function pick(arr:string[], n:number){ const pool=[...arr]; const out:string[]=[]; while(out.length<n&&pool.length){ out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]) } return out }
+function dndName(thing:string){ const r = Math.random(); if (r < 0.5) return `${rand(NAME_PREFIX)} ${thing} ${rand(NAME_SUFFIX)}`; if (r < 0.85) return `${rand(NAME_MAKERS)}’s ${thing} ${rand(NAME_SUFFIX)}`; return `${rand(NAME_PREFIX)} ${thing}` }
+function themeIcon(t:string){
+  switch(t){
+    case 'Random': return '🎲'; case 'Arcane': return '🔮'; case 'Martial': return '🛡️'; case 'Divine': return '✨';
+    case 'Primal': return '🌿'; case 'Shadow': return '🌑'; case 'Utility': return '⚙️'; case 'Elemental': return '🔥';
+    case 'Fey': return '🧚'; case 'Celestial': return '🌟'; case 'Necrotic': return '☠️'; case 'Technomancy': return '🤖'; case 'Eldritch': return '🜇';
+    default: return '⚙️'
   }
-  return out
 }
 
-function dndName(thing:string){
-  const r = Math.random()
-  if (r < 0.5) return `${rand(NAME_PREFIX)} ${thing} ${rand(NAME_SUFFIX)}`
-  if (r < 0.85) return `${rand(NAME_MAKERS)}’s ${thing} ${rand(NAME_SUFFIX)}`
-  return `${rand(NAME_PREFIX)} ${thing}`
+// --- Types ---
+interface Item { id:string; name:string; category:'weapon'|'armor'|'trinket'|'scroll'; rarity:string; theme:string; attunement:boolean; typeLine:string; description:string; affixes:string[]; flavor?:string }
+
+// --- Core generator ---
+function generateOne(opts:{ category:'weapon'|'armor'|'trinket'|'scroll'; weaponType:string; armorType:string; rarity:string; theme:string }): Item {
+  const { category, weaponType, armorType } = opts
+  const rarity = opts.rarity
+  const resolvedTheme = opts.theme === 'Random' ? rand(THEMES.filter(t=>t!=='Random')) : opts.theme
+  const attunement = ATTUNE_BY_RARITY[rarity] ?? false
+
+  let typeLine = ''
+  let description = ''
+  let affixes: string[] = []
+
+  if (category === 'weapon'){
+    typeLine = weaponType
+    description = `${weaponType} — ${WEAPON_DAMAGE[weaponType] ?? '—'}`
+    const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
+    affixes = pick(EFFECTS.weapon[rarity as keyof typeof EFFECTS.weapon], take)
+  } else if (category === 'armor'){
+    typeLine = armorType
+    const ac = armorType === 'Shield' ? ARMOR_BASE['Shield'] : ARMOR_BASE[armorType]
+    description = `${armorType} — ${ac}`
+    const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
+    affixes = pick(EFFECTS.armor[rarity as keyof typeof EFFECTS.armor], take)
+  } else if (category === 'scroll'){
+    typeLine = 'Scroll'
+    description = 'Spell scroll of a theme‑appropriate spell'
+    const take = 1
+    affixes = ['One‑time use. Casting ability per DM.']
+  } else {
+    typeLine = 'Wondrous item'
+    description = 'Wondrous item (trinket)'
+    const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
+    affixes = pick(EFFECTS.trinket[rarity as keyof typeof EFFECTS.trinket], take)
+  }
+
+  const flavorList = THEME_FLAVOR[resolvedTheme] ?? ['']
+  return {
+    id: Math.random().toString(36).slice(2),
+    name: dndName(typeLine),
+    category,
+    rarity,
+    theme: resolvedTheme,
+    attunement,
+    typeLine,
+    description,
+    affixes,
+    flavor: flavorList.length ? rand(flavorList) : undefined,
+  }
 }
 
-function rand<T>(arr:T[]){ return arr[Math.floor(Math.random()*arr.length)] }
-
-function roll(min:number,max:number){ return Math.floor(Math.random()*(max-min+1))+min }
-
-// Simple local button-grid picker with clear selected styles
-type PickerOption = { value:string; label:string; title?:string; icon?:string; color?:string }
-function OptionGrid({ options, value, onChange, columns=4 }:{ options:PickerOption[]; value:string; onChange:(v:string)=>void; columns?:number }){
-  return (
-    <div className="grid gap-2" style={{gridTemplateColumns:`repeat(${columns}, minmax(0,1fr))`}}>
-      {options.map((opt)=>{
-        const selected = value === opt.value
-        // when not selected, slightly dim and desaturate to emphasize chosen option
-        const base = selected
-          ? 'relative flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 border-2 shadow-md'
-          : 'relative flex flex-col items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition transform hover:-translate-y-0.5 focus:outline-none opacity-70 hover:opacity-95 border'
-
-        const selectedStyles = selected ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white border-amber-500' : 'bg-white/5 text-gray-200 border-gray-700'
-
-        const inlineStyle: React.CSSProperties = selected
-          ? { background: 'linear-gradient(90deg,#f6ad55,#d97706)', color: 'white' }
-          : { filter: 'grayscale(.15) opacity(.8)' }
-
-        return (
-          <button
-            key={opt.value}
-            type="button"
-            aria-pressed={selected}
-            data-selected={selected ? 'true' : 'false'}
-            title={opt.title || opt.label}
-            onClick={()=>onChange(opt.value)}
-            className={`group ${base} ${selectedStyles}`}
-            style={inlineStyle}
-          >
-            <span className="text-2xl leading-none select-none">{opt.icon ?? ''}</span>
-            <span className="leading-tight select-none mt-1">{opt.label}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
+function formatForCopy(i:Item, opts:{ style:'markdown'|'plain'; includeFlavor:boolean }){
+  const headerMd = `**${i.name}** — ${i.typeLine}\n_${i.rarity} • ${i.theme}${i.attunement ? ' • Attunement' : ''}_`
+  const headerPlain = `${i.name} — ${i.typeLine}\n${i.rarity} • ${i.theme}${i.attunement ? ' • Attunement' : ''}`
+  const desc = i.description.includes('—') ? i.description.split('—').slice(1).join('—').trim() : i.description
+  const rulesMd = i.affixes.map(a=>`• ${a}`).join('\n')
+  const rulesPlain = i.affixes.map(a=>`- ${a}`).join('\n')
+  const flavorMd = (opts.includeFlavor && i.flavor) ? `\n>*${i.flavor}*` : ''
+  const flavorPlain = (opts.includeFlavor && i.flavor) ? `\n(${i.flavor})` : ''
+  if (opts.style === 'plain'){
+    return `${headerPlain}\n${desc}\n\n${rulesPlain}${flavorPlain}`
+  }
+  return `${headerMd}\n${desc}\n\n${rulesMd}${flavorMd}`
 }
 
 export default function MagicItemClient(){
-  // keep all state here in the parent
-  const [category, setCategory] = React.useState<string>('weapon')
-  const [weaponType, setWeaponType] = React.useState<string>(WEAPON_TYPES[0])
-  const [armorType, setArmorType] = React.useState<string>(ARMOR_TYPES[0])
-  const [rarity, setRarity] = React.useState<string>('Common')
-  const [theme, setTheme] = React.useState<string>('Martial')
-  const [result, setResult] = React.useState<any| null>(null)
-  const [copied, setCopied] = React.useState<boolean>(false)
-  const [aiLoading, setAiLoading] = React.useState<boolean>(false)
-  const [aiSummary, setAiSummary] = React.useState<string | null>(null)
-  const [aiBullets, setAiBullets] = React.useState<string[] | null>(null)
-  const [aiError, setAiError] = React.useState<string | null>(null)
-  // image generation removed for now
-  // inline edit states
-  const [editingName, setEditingName] = React.useState<boolean>(false)
-  const [editingType, setEditingType] = React.useState<boolean>(false)
-  const [editingDesc, setEditingDesc] = React.useState<boolean>(false)
+  // left column state
+  const [category, setCategory] = React.useState<'weapon'|'armor'|'trinket'|'scroll'>('weapon')
+  const [weaponType, setWeaponType] = React.useState(WEAPON_TYPES[0])
+  const [armorType, setArmorType] = React.useState(ARMOR_TYPES[0])
+  const [rarity, setRarity] = React.useState('Uncommon')
+  const [theme, setTheme] = React.useState('Martial')
+  const [count, setCount] = React.useState(1)
+  const [items, setItems] = React.useState<Item[]>([])
+  const [copiedId, setCopiedId] = React.useState<string|null>(null)
+  const [appendMode, setAppendMode] = React.useState(false)
+  const [style, setStyle] = React.useState<'markdown'|'plain'>('markdown')
+  const [includeFlavor, setIncludeFlavor] = React.useState(true)
 
-  // no wild-magic loading — "Make it weird" is temporarily removed
-
-  // helper to update the current result object
-  function updateResult(patch: Record<string, any>){
-    setResult((prev:any) => prev ? { ...prev, ...patch } : prev)
-  }
-
-  function setAffix(idx:number, value:string){
-    setResult((prev:any)=>{
-      if (!prev) return prev
-      const aff = [...(prev.affixes||[])]
-      aff[idx] = value
-      return { ...prev, affixes: aff }
-    })
-  }
-
-  function addAffix(){
-    setResult((prev:any)=>{
-      if (!prev) return prev
-      const aff = [...(prev.affixes||[]), 'New effect']
-      return { ...prev, affixes: aff }
-    })
-  }
-
-  function removeAffix(idx:number){
-    setResult((prev:any)=>{
-      if (!prev) return prev
-      const aff = [...(prev.affixes||[])]
-      aff.splice(idx,1)
-      return { ...prev, affixes: aff }
-    })
-  }
-
-function makeName(thing:string){
-  return dndName(thing)
-}
-
-  function generateStats(thing:string){
-    // Determine bucket by thing name
-    const bucket: 'weapon'|'armor'|'trinket' = ((): any => {
-      if (Object.prototype.hasOwnProperty.call(WEAPON_DAMAGE, thing)) return 'weapon'
-      if (Object.prototype.hasOwnProperty.call(ARMOR_BASE, thing) || thing === 'Shield') return 'armor'
-      return 'trinket'
-    })()
-      // resolve theme: if user chose 'Random', pick a concrete theme now
-      const resolvedTheme = theme === 'Random' ? rand(THEMES.filter(t=>t !== 'Random')) : theme
-
-      const attune = ATTUNE_BY_RARITY[rarity] ?? false
-      const base:any = { name: makeName(thing), rarity, theme: resolvedTheme, attunement: attune, description: '', affixes: [] as string[], flavor: '' }
-      // record the detected category so the UI can show an icon/badge
-      ;(base as any).category = bucket
-
-    if (bucket === 'weapon'){
-      const dmg = WEAPON_DAMAGE[thing] ?? '—'
-      base.description = `${thing} — ${dmg}`
-      if (RARITIES.indexOf(rarity) >= RARITIES.indexOf('Uncommon')) base.affixes.push('This weapon is magical')
-      const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
-      base.affixes.push(...pick(EFFECTS.weapon[rarity as keyof typeof EFFECTS.weapon], take))
-    } else if (bucket === 'armor'){
-      const ac = thing === 'Shield' ? ARMOR_BASE['Shield'] : ARMOR_BASE[thing]
-      base.description = `${thing} — ${ac}`
-      const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
-      base.affixes.push(...pick(EFFECTS.armor[rarity as keyof typeof EFFECTS.armor], take))
-    } else {
-      base.description = `Wondrous item (trinket)`
-      const take = rarity === 'Legendary' ? 3 : rarity === 'Very Rare' ? 2 : 1
-      base.affixes.push(...pick(EFFECTS.trinket[rarity as keyof typeof EFFECTS.trinket], take))
+  function forge(){
+    const next: Item[] = []
+    for(let n=0;n<count;n++){
+      next.push(generateOne({ category, weaponType, armorType, rarity, theme }))
     }
-
-  // attunement is recorded separately on the item; avoid duplicating it in affixes
-    // Set a dedicated flavor line (short italic text) instead of burying it in affixes
-    base.flavor = rand(THEME_FLAVOR[resolvedTheme] ?? [''])
-    return base
+    setItems(prev => appendMode ? [...prev, ...next] : next)
   }
 
-  // removed weird attachments for now
-
-  function onGenerate(){
-    let thing = 'Trinket'
-    if (category === 'weapon') thing = weaponType
-    if (category === 'armor') thing = armorType
-    const base = generateStats(thing)
-  // previously could attach "weird" effects; currently disabled
-    // set a quick immediate preview while we ask the AI to polish
-    setResult(base)
-  // preview only — AI enhance is manual now (use Enhance (AI) button)
+  function randomize(){
+    const cats: Array<'weapon'|'armor'|'trinket'|'scroll'> = ['weapon','armor','trinket','scroll']
+    const c = rand(cats)
+    setCategory(c)
+    setRarity(rand(RARITIES))
+    setTheme(rand(THEMES))
+    setWeaponType(rand(WEAPON_TYPES))
+    setArmorType(rand(ARMOR_TYPES))
+    setCount(Math.floor(Math.random()*3)+1) // 1–3
   }
 
-  async function copyResultText(){
-    if (!result) return
-    const text = `${result.name}\n${result.description}\n\nAffixes:\n- ${result.affixes.join('\n- ')}`
-    try{
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(()=>setCopied(false),2000)
-    }catch(e){
-      // fallback
-      const ta = document.createElement('textarea')
-      ta.value = text
-      document.body.appendChild(ta)
-      ta.select()
-      try{ document.execCommand('copy'); setCopied(true); setTimeout(()=>setCopied(false),2000) }catch(e){ alert('Copy failed') }
-      document.body.removeChild(ta)
-    }
+  async function copyItem(i:Item){
+    await navigator.clipboard.writeText(formatForCopy(i, { style, includeFlavor }))
+    setCopiedId(i.id)
+    setTimeout(()=>setCopiedId(null), 1500)
   }
-
-  // Enhance an item via the AI endpoint. If `autoApply` is true, merge bullets into the
-  // item's affixes and replace the description with the AI paragraph (if available).
-  async function enhanceWithAI(itemParam?: any, autoApply = false){
-    const target = itemParam ?? result
-    if (!target) return
-    setAiLoading(true)
-    setAiError(null)
-    setAiSummary(null)
-    setAiBullets(null)
-    try{
-      const r = await fetch('/api/magic-item/describe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item: target }),
-      })
-      const data = await r.json()
-      if (!r.ok || data?.error) {
-        setAiError(data?.error || `Status ${r.status}`)
-      } else {
-        const raw = (data.summary ?? (typeof data === 'string' ? data : '')).toString().trim()
-        // try to extract bullets from either the dedicated field or from the summary text
-        let bullets: string[] = Array.isArray(data.bullets) ? data.bullets.slice() : []
-
-        // split into non-empty lines for parsing
-  const lines = raw.split(/\r?\n/).map((l: string) => l.trim())
-        // attempt to extract inline bullets from summary if explicit bullets not provided
-        if ((!bullets || bullets.length === 0) && lines.length) {
-          for (const ln of lines) {
-            if (!ln) continue
-            // common bullet markers
-            const m = ln.match(/^[-•*]\s+(.*)$/)
-            const n = ln.match(/^\d+\.\s+(.*)$/)
-            if (m) bullets.push(m[1].trim())
-            else if (n) bullets.push(n[1].trim())
-          }
-        }
-
-        // extract a lead paragraph: the first block of text separated by blank lines that is not a bullet
-        const blocks = raw.split(/\n\s*\n/).map((b: string) => b.trim()).filter(Boolean)
-        let paragraph = ''
-        if (blocks.length) {
-          // prefer the first block that doesn't look like a bullet list
-          paragraph = blocks.find((b: string) => !/^([-•*]|\d+\.)/m.test(b)) || blocks[0]
-        }
-
-        // sanitize & format for display: simple paragraph + bullet list
-        const esc = (s:string)=> s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        const htmlParts: string[] = []
-        if (paragraph) htmlParts.push(`<p class="mb-2">${esc(paragraph).replace(/\n/g,'<br/>')}</p>`)
-        if (bullets && bullets.length){
-          htmlParts.push('<ul class="list-disc pl-5">' + bullets.map(b=>`<li>${esc(b)}</li>`).join('') + '</ul>')
-        }
-
-        const formatted = htmlParts.join('\n') || esc(raw)
-        setAiSummary(formatted)
-        setAiBullets(bullets && bullets.length ? bullets : null)
-
-        if (autoApply) {
-          setResult((prev:any)=>{
-            if (!prev) return prev
-            const mergedAffixes = prev.affixes ? [...prev.affixes] : []
-            if (bullets && bullets.length) {
-              bullets.forEach((b:string)=>{ if (!mergedAffixes.includes(b)) mergedAffixes.push(b) })
-            }
-            return { ...prev, description: paragraph || prev.description, affixes: mergedAffixes }
-          })
-        }
-      }
-    }catch(e:any){
-      setAiError(String(e?.message ?? e))
-    }finally{ setAiLoading(false) }
+  async function copyAll(){
+    await navigator.clipboard.writeText(items.map(it=>formatForCopy(it, { style, includeFlavor })).join('\n\n'))
+    setCopiedId('ALL')
+    setTimeout(()=>setCopiedId(null), 1500)
   }
 
   return (
-    <div className="p-6 bg-gray-50 rounded-lg space-y-6">
-      <h2 className="text-2xl font-bold">Magic Item Generator</h2>
-      <p className="text-sm text-gray-600">Choose options below and forge a D&amp;D‑style magic item.</p>
-      <div className="grid md:grid-cols-3 gap-6" style={{display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1.5rem'}}>
-        <div className="md:col-span-1" style={{minWidth: 260}}>
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <MagicItemForm onPick={(item:any)=>{ setResult(item) }} />
+    <div className="grid gap-6 md:grid-cols-[320px_1fr] p-4">
+      {/* Left: simple form */}
+      <section className="card bg-base-100 shadow-sm border">
+        <div className="card-body">
+          <h2 className="card-title">Magic Item Generator</h2>
+          <p className="text-sm opacity-70">Pick a few options and forge polished, copy‑ready cards.</p>
+
+          <div className="flex gap-2 mb-2">
+            <button className="btn btn-sm" onClick={randomize}>🎲 Randomize</button>
+            <button className="btn btn-sm btn-ghost" onClick={()=>{ setItems([]); setCount(1); }}>Reset</button>
+          </div>
+
+          <div className="form-control">
+            <label className="label"><span className="label-text">Category</span></label>
+            <select className="select select-bordered" value={category} onChange={e=>setCategory(e.target.value as any)}>
+              <option value="weapon">Weapons</option>
+              <option value="armor">Armor</option>
+              <option value="trinket">Trinkets</option>
+              <option value="scroll">Scrolls</option>
+            </select>
+          </div>
+
+          {category==='weapon' && (
+            <div className="form-control">
+              <label className="label"><span className="label-text">Weapon Type</span></label>
+              <select className="select select-bordered" value={weaponType} onChange={e=>setWeaponType(e.target.value)}>
+                {WEAPON_TYPES.map(w=> (<option key={w} value={w}>{w}</option>))}
+              </select>
             </div>
-            <div>
-          <div className="mb-3">
-            <button
-              type="button"
-              onClick={() => {
-                const cats = ['weapon','armor','trinket','scroll']
-                const c = rand(cats)
-                setCategory(c)
-                const r = rand(RARITIES)
-                setRarity(r)
-                setTheme(rand(THEMES))
-                setWeaponType(rand(WEAPON_TYPES))
-                setArmorType(rand(ARMOR_TYPES))
-              }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-100 hover:bg-amber-200 border"
-              title="Randomize options"
-            >
-              🎲 Randomize
-            </button>
-          </div>
-          <label className="block text-sm font-semibold mb-2">Category</label>
-          <OptionGrid
-            options={[
-              { value: 'weapon', label: 'Weapons', title: 'Weapons', icon: '🗡️' },
-              { value: 'armor', label: 'Armor', title: 'Armor', icon: '🛡️' },
-              { value: 'trinket', label: 'Trinkets', title: 'Trinkets', icon: '💍' },
-              { value: 'scroll', label: 'Scrolls', title: 'Scrolls', icon: '📜' },
-            ]}
-            value={category}
-            onChange={(v)=>setCategory(v)}
-            columns={4}
-          />
-        </div>
+          )}
 
-        <div>
-          <label className="block text-sm font-semibold mb-2">Rarity</label>
-          <OptionGrid
-            options={RARITIES.map(r=>({
-              value:r,
-              label:r,
-              title:r,
-              icon: r === 'Legendary' ? '💎' : r === 'Very Rare' ? '🔮' : '♦️',
-            }))}
-            value={rarity}
-            onChange={(v)=>setRarity(v)}
-            columns={5}
-          />
-        </div>
+          {category==='armor' && (
+            <div className="form-control">
+              <label className="label"><span className="label-text">Armor Type</span></label>
+              <select className="select select-bordered" value={armorType} onChange={e=>setArmorType(e.target.value)}>
+                {ARMOR_TYPES.map(a=> (<option key={a} value={a}>{a}</option>))}
+              </select>
+            </div>
+          )}
 
-        {category === 'weapon' && (
-          <div>
-            <label className="block text-sm font-semibold mb-2">Weapon Type</label>
-            <OptionGrid
-              options={WEAPON_TYPES.map(w=>({ value:w, label:w, title:w, icon: WEAPON_ICONS[w] ?? w[0] }))}
-              value={weaponType}
-              onChange={(v)=>setWeaponType(v)}
-              columns={5}
-            />
-          </div>
-        )}
-
-        {category === 'armor' && (
-          <div>
-            <label className="block text-sm font-semibold mb-2">Armor Type</label>
-            <OptionGrid
-              options={ARMOR_TYPES.map(a=>({ value:a, label:a, title:a }))}
-              value={armorType}
-              onChange={(v)=>setArmorType(v)}
-              columns={4}
-            />
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-semibold mb-2">Theme</label>
-            <OptionGrid
-              options={THEMES.map(t=>({ value:t, label:t, title:t, icon: themeIcon(t) }))}
-              value={theme}
-              onChange={(v)=>setTheme(v)}
-              columns={6}
-            />
-        </div>
-
-          <div className="flex items-center gap-4">
-            <div className="ml-auto">
-              <Button variant="primary" onClick={onGenerate} className="relative overflow-hidden">
-                <span className="z-10 relative">Forge Item</span>
-                <span aria-hidden className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-transparent opacity-0 hover:opacity-30 transition-opacity"></span>
-              </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="form-control">
+              <label className="label"><span className="label-text">Rarity</span></label>
+              <select className="select select-bordered" value={rarity} onChange={e=>setRarity(e.target.value)}>
+                {RARITIES.map(r=> (<option key={r} value={r}>{r}</option>))}
+              </select>
+            </div>
+            <div className="form-control">
+              <label className="label"><span className="label-text">Theme</span></label>
+              <select className="select select-bordered" value={theme} onChange={e=>setTheme(e.target.value)}>
+                {THEMES.map(t=> (<option key={t} value={t}>{t}</option>))}
+              </select>
             </div>
           </div>
-              </div>
+
+          {/* Output settings */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="form-control">
+              <label className="label"><span className="label-text">Output style</span></label>
+              <select className="select select-bordered" value={style} onChange={e=>setStyle(e.target.value as 'markdown'|'plain')}>
+                <option value="markdown">Markdown</option>
+                <option value="plain">Plain text</option>
+              </select>
             </div>
+            <div className="form-control">
+              <label className="label"><span className="label-text">Include flavor</span></label>
+              <input type="checkbox" className="toggle" checked={includeFlavor} onChange={e=>setIncludeFlavor(e.target.checked)} />
+            </div>
+          </div>
+          <div className="form-control mt-2">
+            <label className="label cursor-pointer justify-start gap-3">
+              <input type="checkbox" className="checkbox" checked={appendMode} onChange={e=>setAppendMode(e.target.checked)} />
+              <span className="label-text">Append new items</span>
+            </label>
+          </div>
 
-            <div className="md:col-span-2">
-            {result && (
-              <div className="mt-4">
-                <div
-                  className="relative rounded-xl p-8 shadow-xl border-4 overflow-hidden"
-                  style={{
-                    backgroundImage: 'linear-gradient(180deg, #fff8ef, #fff3e6)',
-                    borderStyle: 'solid',
-                    borderImage: 'linear-gradient(90deg,#f6ad55,#d97706,#f472b6) 1',
-                    boxShadow: '0 12px 30px rgba(16,24,40,0.08)'
-                  }}
-                >
-                      {/* subtle inner parchment rim */}
-                      <div className="absolute -inset-2 rounded-xl pointer-events-none" style={{boxShadow: 'inset 0 0 0 6px rgba(255,245,238,0.6)'}}></div>
+          <div className="grid grid-cols-2 gap-3 items-end mt-2">
+            <div className="form-control">
+              <label className="label"><span className="label-text">How many?</span></label>
+              <input type="number" min={1} max={6} value={count} onChange={e=>setCount(Math.min(6, Math.max(1, Number(e.target.value)||1)))} className="input input-bordered" />
+            </div>
+            <button className="btn btn-primary mt-6" onClick={forge}>Forge Items</button>
+          </div>
+        </div>
+      </section>
 
-                      {/* Header (name + subtitle) - banner removed for a simpler look */}
-                      <div className="text-center mb-2">
-                        {/* Name: display text, click to edit */}
-                        {editingName ? (
-                          <input
-                            className="mx-auto block w-11/12 text-4xl fantasy-title text-rose-900 font-extrabold bg-transparent border-b border-amber-200 focus:outline-none text-center"
-                            value={result.name}
-                            onChange={(e)=>updateResult({ name: e.target.value })}
-                            onBlur={()=>setEditingName(false)}
-                            autoFocus
-                          />
-                        ) : (
-                          <div className="cursor-text" onClick={()=>setEditingName(true)}>
-                            <div className="text-4xl fantasy-title text-rose-900 font-extrabold">{result.name}</div>
-                          </div>
-                        )}
-
-                        {/* small pill with type and rarity below the name; click type to edit */}
-                        <div className="mt-2 inline-flex items-center gap-3">
-                          {editingType ? (
-                            <input
-                              className="text-sm italic text-gray-600 bg-transparent border-b border-amber-200 focus:outline-none text-center px-1"
-                              value={result.typeLine ?? ''}
-                              onChange={(e)=>updateResult({ typeLine: e.target.value })}
-                              onBlur={()=>setEditingType(false)}
-                              autoFocus
-                            />
-                          ) : (
-                            <div onClick={()=>setEditingType(true)} className="text-sm italic text-gray-700 cursor-text px-2">
-                              {result.typeLine ?? (()=>{ const d = result.description ?? ''; if (d.startsWith('Wondrous')) return 'Wondrous item'; if (d.includes('—')) return `${d.split('—')[0].trim()}`; return '' })() }
-                            </div>
-                          )}
-
-                          <span className={`text-xs font-semibold px-2 py-1 rounded ${RARITY_BADGE_CLASSES[result.rarity ?? 'Common'] || 'bg-gray-200 text-gray-800'}`}>{result.rarity}</span>
-                        </div>
-
-                        <div className="text-xs text-gray-500 mt-2">
-                          <label className="inline-flex items-center gap-2">
-                            <input type="checkbox" className="form-checkbox" checked={!!result.attunement} onChange={(e)=>updateResult({ attunement: e.target.checked })} />
-                            <span>{result.attunement ? 'Requires attunement' : 'No attunement required'}</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Card body layout: make room for banner */}
-                      <div className="pt-12">
-                        {/* Center art / icon */}
-                        <div className="flex items-center justify-center">
-                          <div className="w-40 h-40 rounded-lg bg-white/90 flex items-center justify-center text-6xl shadow-md">{CATEGORY_ICONS[result.category] ?? themeIcon(result.theme)}</div>
-                        </div>
-
-                        {/* Parchment flavor box (flavor moved to bottom of card) */}
-                        <div className="mt-6 mx-6 bg-white/95 border rounded-md p-4" style={{boxShadow: 'inset 0 0 0 6px rgba(245,238,224,0.6)'}}>
-                          {/* editable stat/description */}
-                          <div className="mt-3 text-sm text-gray-800 text-center">
-                            {(() => {
-                              const desc = result.description ?? ''
-                              const computedType = result.typeLine ?? (desc.startsWith('Wondrous') ? 'Wondrous item' : (desc.includes('—') ? desc.split('—')[0].trim() : ''))
-                              const right = desc.includes('—') ? desc.split('—').slice(1).join('—').trim() : (desc.startsWith('Wondrous') ? desc : desc)
-                              // show description as text unless user wants to edit
-                              return (
-                                <div>
-                                  {editingDesc ? (
-                                    <textarea
-                                      className="w-full resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-sm text-center shadow-sm focus:ring-1 focus:ring-amber-200"
-                                      rows={4}
-                                      value={right}
-                                      onChange={(e)=>{
-                                        const newRight = e.target.value
-                                        if (computedType) {
-                                          updateResult({ description: `${computedType} — ${newRight}`, typeLine: computedType })
-                                        } else {
-                                          updateResult({ description: newRight })
-                                        }
-                                      }}
-                                      onBlur={()=>setEditingDesc(false)}
-                                      autoFocus
-                                    />
-                                  ) : (
-                                    <div className="cursor-text" onClick={()=>setEditingDesc(true)}>
-                                      <div className="whitespace-pre-wrap">{right || <span className="text-gray-400">Click to edit description</span>}</div>
-                                    </div>
-                                  )}
-                                </div>
-                              )
-                            })()}
-                          </div>
-                        </div>
-
-                        {/* Rules / affixes list (bottom panel) */}
-                        <div className="mt-4 mx-6 bg-white/95 border rounded-b-md p-3">
-                          <div className="space-y-3 text-sm">
-                            {(result.affixes || []).map((a:any, i:number)=> (
-                              <div key={i} className="flex items-start gap-3">
-                                <textarea
-                                  className="flex-1 resize-none bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm shadow-sm"
-                                  rows={3}
-                                  value={a}
-                                  onChange={(e)=>setAffix(i, e.target.value)}
-                                />
-                                <button type="button" className="ml-2 text-sm text-red-600 hover:text-red-800" onClick={()=>removeAffix(i)}>Remove</button>
-                              </div>
-                            ))}
-
-                            <div>
-                              <Button variant="secondary" onClick={addAffix} className="mt-1">+ Add affix</Button>
-                            </div>
-                          </div>
-
-                          {/* Flavor quote moved to bottom of card (inside rules panel) */}
-                          {result.flavor && (
-                            <div className="mt-3 text-center italic text-gray-700 px-3 py-2 bg-white/5 rounded-md">{`“${result.flavor}”`}</div>
-                          )}
-                        </div>
-
-                        {/* Bottom actions row */}
-                        <div className="mt-4 flex items-center justify-end gap-2 px-6">
-                          <Button variant="secondary" onClick={() => enhanceWithAI(undefined, true)} disabled={aiLoading || !result}>
-                            {aiLoading ? 'Summarizing…' : 'Enhance (AI)'}
-                          </Button>
-                          <Button variant="ghost" onClick={copyResultText}>{copied ? 'Copied!' : 'Copy'}</Button>
-                        </div>
-                      </div>
-                </div>
-              </div>
+      {/* Right: results */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Results</h3>
+          <div className="flex items-center gap-2">
+            <label className="label cursor-pointer gap-2 text-sm">
+              <span className="opacity-70">Append</span>
+              <input type="checkbox" className="toggle toggle-xs" checked={appendMode} onChange={e=>setAppendMode(e.target.checked)} />
+            </label>
+            {items.length > 0 && (
+              <button className="btn btn-ghost btn-sm" onClick={copyAll}>{copiedId==='ALL' ? 'Copied!' : 'Copy all'}</button>
             )}
+          </div>
+        </div>
 
-            {/* AI output panel — separate block to style independently */}
-            <div className="mt-4">
-              {aiError && <div className="text-sm text-red-600">AI error: {aiError}</div>}
-              {aiSummary && (
-                <div className="p-4 bg-white border rounded-md shadow-sm">
-                  <div className="prose-sm"><div dangerouslySetInnerHTML={{ __html: aiSummary.replace(/\n/g, '<br/>') }} /></div>
-                  {aiBullets && aiBullets.length > 0 && (
-                    <ul className="mt-2 list-disc pl-5">
-                      {aiBullets.map((b,i)=>(<li key={i} className="text-sm">{b}</li>))}
-                    </ul>
+        {items.length === 0 && (
+          <div className="rounded-lg border border-dashed p-8 text-center text-sm opacity-70">No items yet. Pick options or hit <span className="font-semibold">Randomize</span>, then <span className="font-semibold">Forge Items</span>.</div>
+        )}
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {items.map((i)=>{
+            const right = i.description.includes('—') ? i.description.split('—').slice(1).join('—').trim() : i.description
+            return (
+              <article key={i.id} className="card bg-base-100 shadow-sm border">
+                <div className="card-body">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="card-title leading-tight">{i.name}</h4>
+                      <div className="text-sm opacity-70">{CATEGORY_ICONS[i.category]} {i.typeLine} · <span className="badge badge-ghost align-middle mr-1">{i.rarity}</span> <span className="align-middle">{themeIcon(i.theme)} {i.theme}</span>{i.attunement ? <span className="ml-2 badge badge-outline">Attunement</span> : null}</div>
+                    </div>
+                    <button className="btn btn-ghost btn-sm" onClick={()=>copyItem(i)}>{copiedId===i.id ? 'Copied!' : 'Copy'}</button>
+                  </div>
+
+                  <p className="text-sm mt-2">{right}</p>
+
+                  <ul className="mt-3 text-sm list-disc pl-5 space-y-1">
+                    {i.affixes.map((a,idx)=>(<li key={idx}>{a}</li>))}
+                  </ul>
+
+                  {i.flavor && (
+                    <p className="italic text-sm opacity-80 mt-3">“{i.flavor}”</p>
                   )}
                 </div>
-              )}
-            </div>
-            {/* Image generation/preview removed */}
-          </div>
+              </article>
+            )
+          })}
         </div>
+      </section>
     </div>
   )
 }
